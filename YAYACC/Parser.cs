@@ -25,12 +25,13 @@ namespace YAYACC
         public Grammar grammar = new Grammar();
         List<List<string>> Auxrules;
         Variable Auxvariable;
-        List<string> Auxrule;
+        Stack<string> Auxrule;
         bool isTrue = false;
         bool isTrue2 = false;
         bool isOther = false;
         bool ya4 = false;
-
+        
+        
         public void State0(bool IsAction)
         {
             if (IsAction)
@@ -448,16 +449,17 @@ namespace YAYACC
                         Auxrules = new List<List<string>>();
                         isTrue2 = true;
                     }
-                    Auxrules.Add(Auxrule);
+
+                    AddRule(Auxrule);
                     isOther = false;
                     isTrue = false;
                 }
                 if (!isTrue)
                 {
-                    Auxrule = new List<string>();
+                    Auxrule = new Stack<string>();
                     isTrue = true;
                 }
-                Auxrule.Add(_Lexemestack.Pop());
+                Auxrule.Push(_Lexemestack.Pop());
                 ya4 = false;
             }
             else if (ruleNumber == 5)
@@ -467,7 +469,7 @@ namespace YAYACC
                     Auxrules = new List<List<string>>();
                     isTrue2 = true;
                 }
-                Auxrules.Add(Auxrule);
+                AddRule(Auxrule);
             }          
             else if (ruleNumber == 3)
             {
@@ -485,8 +487,12 @@ namespace YAYACC
                 if (grammar.Variables == null)
                 {
                     grammar.Variables = new List<Variable>();
-                }                
-                grammar.Variables.Add(Auxvariable);
+                }
+          
+                if (1 == 0);
+                {
+                    grammar.AddVariable(Auxvariable);
+                }
             }            
 
             //GOTO
@@ -530,6 +536,19 @@ namespace YAYACC
             _token = _scanner.GetToken();
             _Statestack.Push(0);
             State0(true);
+        }
+
+
+        public void AddRule(Stack<string> rule)
+        {
+            List<string> FixedRules = new List<string>();
+            int _count = rule.Count;
+            for (int i = 0; i < _count; i++)
+            {
+                FixedRules.Add(rule.Pop());
+            }
+
+            Auxrules.Add(FixedRules);
         }
     }
 }
