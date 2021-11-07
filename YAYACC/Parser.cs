@@ -10,6 +10,7 @@ namespace YAYACC
         Token _token;
         Stack<string> _stack;
         Stack<int> _Statestack;
+        Stack<string> _Lexemestack;
         Dictionary<int, Rule> ToReduce = new Dictionary<int, Rule>
         {
             { 1, new Rule { PopQuantity = 2, Variable = "GRAM", Production = new List<string> { "GRAM", "RULE"}}},
@@ -21,6 +22,15 @@ namespace YAYACC
             { 7, new Rule { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Terminal.ToString()}}},
             { 8, new Rule { PopQuantity = 0, Variable = "PROD"}}
         };
+        public Grammar grammar = new Grammar();
+        List<List<string>> Auxrules;
+        Variable Auxvariable;
+        List<string> Auxrule;
+        bool isTrue = false;
+        bool isTrue2 = false;
+        bool isOther = false;
+        bool ya4 = false;
+
         public void State0(bool IsAction)
         {
             if (IsAction)
@@ -117,7 +127,7 @@ namespace YAYACC
         {
             switch (_token.Tag)
             {
-                case TokenType.EOF:
+                case TokenType.EOF:                    
                     Reduce(1);
                     break;
                 default:
@@ -336,7 +346,7 @@ namespace YAYACC
             {
                 case TokenType.Semicolon:
                 case TokenType.Pipe:
-                    Reduce(6);
+                    Reduce(6);                    
                     break;
                 default:
                     throw new Exception("Syntax Error");
@@ -347,7 +357,7 @@ namespace YAYACC
             switch (_token.Tag)
             {
                 case TokenType.Semicolon:
-                case TokenType.Pipe:
+                case TokenType.Pipe:                    
                     Reduce(7);
                     break;
                 default:
@@ -403,7 +413,16 @@ namespace YAYACC
         public void Consume()
         {
             _stack.Push(_token.Tag.ToString());
-            _token = _scanner.GetToken();
+            if (_stack.Peek() == "Pipe")
+            {
+                isOther = true;
+            }
+
+            if (_token.Value != "\0")
+            {
+                _Lexemestack.Push(_token.Value);
+            }            
+            _token = _scanner.GetToken();            
         }
         public void Reduce(int ruleNumber)
         {
@@ -419,6 +438,56 @@ namespace YAYACC
                 _Statestack.Pop();
             }
             _stack.Push(rule.Variable);
+
+            if (ruleNumber == 7 || ruleNumber == 6)
+            {
+                if (isOther)
+                {
+                    if (!isTrue2)
+                    {
+                        Auxrules = new List<List<string>>();
+                        isTrue2 = true;
+                    }
+                    Auxrules.Add(Auxrule);
+                    isOther = false;
+                    isTrue = false;
+                }
+                if (!isTrue)
+                {
+                    Auxrule = new List<string>();
+                    isTrue = true;
+                }
+                Auxrule.Add(_Lexemestack.Pop());
+                ya4 = false;
+            }
+            else if (ruleNumber == 5)
+            {
+                if (!isTrue2)
+                {
+                    Auxrules = new List<List<string>>();
+                    isTrue2 = true;
+                }
+                Auxrules.Add(Auxrule);
+            }          
+            else if (ruleNumber == 3)
+            {
+                //if (!ya4)
+                //{
+                    Auxvariable = new Variable
+                    {
+                        Name = _Lexemestack.Pop()
+                    };
+                    Auxvariable.Rules = Auxrules;
+                    isTrue = false;
+                    isTrue2 = false;
+                    ya4 = true;
+                //}
+                if (grammar.Variables == null)
+                {
+                    grammar.Variables = new List<Variable>();
+                }                
+                grammar.Variables.Add(Auxvariable);
+            }            
 
             //GOTO
             switch (_Statestack.Peek())
@@ -456,6 +525,7 @@ namespace YAYACC
             _scanner = new Scanner(path);
             _stack = new Stack<string>();
             _Statestack = new Stack<int>();
+            _Lexemestack = new Stack<string>();
             _stack.Push("#");
             _token = _scanner.GetToken();
             _Statestack.Push(0);

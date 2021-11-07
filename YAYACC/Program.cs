@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
-
 namespace YAYACC
 {
     class Program
@@ -15,8 +11,10 @@ namespace YAYACC
             Parser parser = new Parser();
             try
             {
-                parser.Parse(args[0]);
+                parser.Parse("Gramática_2.y");
                 Console.WriteLine("Expresión OK");
+                parser.grammar.Imprimir_Gramatica();
+                Console.ReadLine();
             }
             catch (Exception e)
             {
