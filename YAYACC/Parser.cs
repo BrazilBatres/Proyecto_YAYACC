@@ -14,7 +14,7 @@ namespace YAYACC
         {
             { 1, new Rule { PopQuantity = 2, Variable = "GRAM", Production = new List<string> { "GRAM", "RULE"}}},
             { 2, new Rule { PopQuantity = 1, Variable = "GRAM", Production = new List<string> { "RULE"}}},
-            { 3, new Rule { PopQuantity = 4, Variable = "RULE", Production = new List<string> { "RULE", "PROD", TokenType.Colon.ToString(), TokenType.Variable.ToString()}}},
+            { 3, new Rule { PopQuantity = 4, Variable = "RULE", Production = new List<string> { "gRULE", "PROD", TokenType.Colon.ToString(), TokenType.Variable.ToString()}}},
             { 4, new Rule { PopQuantity = 3, Variable = "gRULE", Production = new List<string>{ "gRULE", "PROD", TokenType.Pipe.ToString()}}},
             { 5, new Rule { PopQuantity = 1, Variable = "gRULE", Production = new List<string>{ TokenType.Semicolon.ToString()}}},
             { 6, new Rule { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Variable.ToString()}}},
@@ -361,14 +361,14 @@ namespace YAYACC
                 switch (_token.Tag)
                 {
                     case TokenType.Semicolon:
-                        _Statestack.Push(11);
-                        Consume();
-                        State11(true);
-                        break;
-                    case TokenType.Pipe:
                         _Statestack.Push(12);
                         Consume();
                         State12();
+                        break;
+                    case TokenType.Pipe:
+                        _Statestack.Push(11);
+                        Consume();
+                        State11(true);
                         break;
                     default:
                         throw new Exception("Syntax Error");
@@ -455,25 +455,11 @@ namespace YAYACC
         {
             _scanner = new Scanner(path);
             _stack = new Stack<string>();
+            _Statestack = new Stack<int>();
             _stack.Push("#");
             _token = _scanner.GetToken();
-            switch (_token.Tag)
-            {
-                case TokenType.Colon:
-                    break;
-                case TokenType.Semicolon:
-                    break;
-                case TokenType.Pipe:
-                    break;
-                case TokenType.EOF:
-                    break;
-                case TokenType.Terminal:
-                    break;
-                case TokenType.Variable:
-                    break;
-                default:
-                    break;
-            }
+            _Statestack.Push(0);
+            State0(true);
         }
     }
 }
