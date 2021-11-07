@@ -1,21 +1,19 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
 namespace YAYACC
 {
-    class Scanner
+    public class Scanner
     {
         //colocar dos veces " para que lo reconozca como símbolo en un string
         //colocar @ para que no den error los backslash
-        string term_regex = @"^'([a-zA-Z!""#%&()*+,\-./:;<=>?[\]^_{|}~\d ]|(\\\\)|(\\n)|(\\t)|(\\'))'";
-        string var_regex = @"^_*[a-zA-Z][a-zA-Z\d_]*";
+        readonly string term_regex = @"^'([a-zA-Z!""#%&()*+,\-./:;<=>?[\]^_{|}~\d ]|(\\\\)|(\\n)|(\\t)|(\\')|(\\e))'";
+        readonly string var_regex = @"^_*[a-zA-Z][a-zA-Z\d_]*";
 
         public Queue<string> _grammar;
-        Regex _Terminal;
-        Regex _Variable;
+        readonly Regex _Terminal;
+        readonly Regex _Variable;
         Match _matcher;
         string currentLine = "";
         public Scanner(string path)
@@ -96,6 +94,5 @@ namespace YAYACC
                 return false;
             }
         }
-
     }
 }

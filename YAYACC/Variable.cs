@@ -5,6 +5,5 @@ namespace YAYACC
     {
         public string Name { get; set; }
         public List<List<string>> Rules { get; set; }
-
     }
 }

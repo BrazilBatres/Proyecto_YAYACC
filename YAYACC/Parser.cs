@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace YAYACC
 {
@@ -11,7 +11,7 @@ namespace YAYACC
         Stack<string> _stack;
         Stack<int> _Statestack;
         Stack<string> _Lexemestack;
-        Dictionary<int, Rule> ToReduce = new Dictionary<int, Rule>
+        readonly Dictionary<int, Rule> ToReduce = new Dictionary<int, Rule>
         {
             { 1, new Rule { PopQuantity = 2, Variable = "GRAM", Production = new List<string> { "GRAM", "RULE"}}},
             { 2, new Rule { PopQuantity = 1, Variable = "GRAM", Production = new List<string> { "RULE"}}},
@@ -24,14 +24,13 @@ namespace YAYACC
         };
         public Grammar grammar = new Grammar();
         List<List<string>> Auxrules;
-        Variable Auxvariable;
         Stack<string> Auxrule;
-        bool isTrue = false;
-        bool isTrue2 = false;
-        bool isOther = false;
-        bool ya4 = false;
-        
-        
+        Variable Auxvariable;        
+        bool newAuxRule = false;
+        bool newAuxRules = false;
+        bool isOtherRule = false;
+
+        #region States
         public void State0(bool IsAction)
         {
             if (IsAction)
@@ -64,7 +63,6 @@ namespace YAYACC
                 }
             }
         }
-        
         public void State1()
         {
             switch (_token.Tag)
@@ -411,14 +409,15 @@ namespace YAYACC
                     throw new Exception("Syntax Error");
             }
         }
+        #endregion
+
         public void Consume()
         {
             _stack.Push(_token.Tag.ToString());
             if (_stack.Peek() == "Pipe")
             {
-                isOther = true;
+                isOtherRule = true;
             }
-
             if (_token.Value != "\0")
             {
                 _Lexemestack.Push(_token.Value);
@@ -426,8 +425,7 @@ namespace YAYACC
             _token = _scanner.GetToken();            
         }
         public void Reduce(int ruleNumber)
-        {
-            //Necesitamos -> cantidad de POPs y Variable a meter, obtenerla con # de regla
+        {            
             Rule rule = ToReduce[ruleNumber];
             for (int i = 0; i < rule.PopQuantity; i++)
             {
@@ -440,61 +438,54 @@ namespace YAYACC
             }
             _stack.Push(rule.Variable);
 
-            if (ruleNumber == 7 || ruleNumber == 6)
+            switch (ruleNumber)
             {
-                if (isOther)
-                {
-                    if (!isTrue2)
-                    {
-                        Auxrules = new List<List<string>>();
-                        isTrue2 = true;
-                    }
-
-                    AddRule(Auxrule);
-                    isOther = false;
-                    isTrue = false;
-                }
-                if (!isTrue)
-                {
-                    Auxrule = new Stack<string>();
-                    isTrue = true;
-                }
-                Auxrule.Push(_Lexemestack.Pop());
-                ya4 = false;
-            }
-            else if (ruleNumber == 5)
-            {
-                if (!isTrue2)
-                {
-                    Auxrules = new List<List<string>>();
-                    isTrue2 = true;
-                }
-                AddRule(Auxrule);
-            }          
-            else if (ruleNumber == 3)
-            {
-                //if (!ya4)
-                //{
+                case 3:
                     Auxvariable = new Variable
                     {
                         Name = _Lexemestack.Pop()
                     };
                     Auxvariable.Rules = Auxrules;
-                    isTrue = false;
-                    isTrue2 = false;
-                    ya4 = true;
-                //}
-                if (grammar.Variables == null)
-                {
-                    grammar.Variables = new List<Variable>();
-                }
-          
-                if (1 == 0);
-                {
-                    grammar.AddVariable(Auxvariable);
-                }
-            }            
+                    newAuxRule = false;
+                    newAuxRules = false;
 
+                    if (grammar.Variables == null)
+                    {
+                        grammar.Variables = new List<Variable>();
+                    }
+                    grammar.AddVariable(Auxvariable);
+                    break;
+                case 5:
+                    if (!newAuxRules)
+                    {
+                        Auxrules = new List<List<string>>();
+                        newAuxRules = true;
+                    }
+                    AddRule(Auxrule);
+                    break;
+                case 6:
+                case 7:
+                    if (isOtherRule)
+                    {
+                        if (!newAuxRules)
+                        {
+                            Auxrules = new List<List<string>>();
+                            newAuxRules = true;
+                        }
+                        AddRule(Auxrule);
+                        isOtherRule = false;
+                        newAuxRule = false;
+                    }
+                    if (!newAuxRule)
+                    {
+                        Auxrule = new Stack<string>();
+                        newAuxRule = true;
+                    }
+                    Auxrule.Push(_Lexemestack.Pop());
+                    break;                                    
+                default:
+                    break;
+            }                     
             //GOTO
             switch (_Statestack.Peek())
             {
@@ -526,6 +517,7 @@ namespace YAYACC
                     throw new Exception("Syntax Error");
             }
         }
+
         public void Parse(string path)
         {
             _scanner = new Scanner(path);
@@ -538,7 +530,6 @@ namespace YAYACC
             State0(true);
         }
 
-
         public void AddRule(Stack<string> rule)
         {
             List<string> FixedRules = new List<string>();
@@ -546,9 +537,20 @@ namespace YAYACC
             for (int i = 0; i < _count; i++)
             {
                 FixedRules.Add(rule.Pop());
+            }            
+            bool exists = false;
+            for (int i = 0; i < Auxrules.Count; i++)
+            {
+                if (Enumerable.SequenceEqual(Auxrules[i],FixedRules))
+                {
+                    exists = true;
+                    break;
+                }
             }
-
-            Auxrules.Add(FixedRules);
+            if (!exists)
+            {
+                Auxrules.Add(FixedRules);
+            }            
         }
     }
 }

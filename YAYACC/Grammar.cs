@@ -6,7 +6,7 @@ namespace YAYACC
     public class Grammar
     {
         public List<Variable> Variables { get; set; }
-        public void Imprimir_Gramatica()
+        public void Print()
         {
             Console.WriteLine("-------------------------------------------");
             for (int i = 0; i < Variables.Count; i++)
@@ -28,10 +28,10 @@ namespace YAYACC
         public void AddVariable(Variable _var)
         {
             bool _inserted = false;
-           foreach (var item in Variables)
-           {
-              if (item.Name == _var.Name)
-              {
+            foreach (var item in Variables)
+            {
+                if (item.Name == _var.Name)
+                {
                     foreach (var item2 in _var.Rules)
                     {
                         bool AlreadyInRule = false;
@@ -49,16 +49,12 @@ namespace YAYACC
                     }
                     _inserted = true;
                     break;
-              }
-           }
-
+                }
+            }
             if (!_inserted)
             {
-
                 Variables.Add(_var);
             }
-
-        }
-     
+        }     
     }
 }
