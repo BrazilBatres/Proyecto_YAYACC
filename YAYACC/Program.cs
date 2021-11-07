@@ -13,7 +13,7 @@ namespace YAYACC
 
             //PRUEBA PARSER
             Parser parser = new Parser();
-            parser.Parse(args[0]);
+            parser.Parse("Gramática_2.y");
             Console.WriteLine("Expresión OK");
 
             //PRUEBA SCANNER
