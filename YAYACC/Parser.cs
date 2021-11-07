@@ -12,7 +12,14 @@ namespace YAYACC
         Stack<int> _Statestack;
         Dictionary<int, Rule> ToReduce = new Dictionary<int, Rule>
         {
-
+            { 1, new Rule { PopQuantity = 2, Variable = "GRAM"}},
+            { 2, new Rule { PopQuantity = 1, Variable = "GRAM"}},
+            { 3, new Rule { PopQuantity = 4, Variable = "RULE"}},
+            { 4, new Rule { PopQuantity = 3, Variable = "gRULE"}},
+            { 5, new Rule { PopQuantity = 1, Variable = "gRULE"}},
+            { 6, new Rule { PopQuantity = 2, Variable = "PROD"}},
+            { 7, new Rule { PopQuantity = 2, Variable = "PROD"}},
+            { 8, new Rule { PopQuantity = 1, Variable = "PROD"}}
         };
         public void State0()
         {
