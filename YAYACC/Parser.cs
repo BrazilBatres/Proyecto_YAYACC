@@ -19,19 +19,38 @@ namespace YAYACC
             { 5, new Rule { PopQuantity = 1, Variable = "gRULE"}},
             { 6, new Rule { PopQuantity = 2, Variable = "PROD"}},
             { 7, new Rule { PopQuantity = 2, Variable = "PROD"}},
-            { 8, new Rule { PopQuantity = 1, Variable = "PROD"}}
+            { 8, new Rule { PopQuantity = 0, Variable = "PROD"}}
         };
-        public void State0()
+        public void State0(bool IsAction)
         {
-            switch (_token.Tag)
+            if (IsAction)
             {
-                case TokenType.Variable:
-                    _Statestack.Push(0);
-                    Consume();
-                    State3();
-                    break;
-                default:
-                    throw new Exception("Syntax Error");
+                switch (_token.Tag)
+                {
+                    case TokenType.Variable:
+                        _Statestack.Push(3);
+                        Consume();
+                        State3();
+                        break;
+                    default:
+                        throw new Exception("Syntax Error");
+                }
+            }
+            else //IsGOTO
+            {
+                switch (_stack.Peek())
+                {
+                    case "GRAM":
+                        _Statestack.Push(1);
+                        State1();
+                        break;
+                    case "RULE":
+                        _Statestack.Push(2);
+                        State2(true);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         
@@ -46,12 +65,12 @@ namespace YAYACC
                     throw new Exception("Syntax Error");
             }
         }
-        public void State2()
+        public void State2(bool IsAction)
         {
             switch (_token.Tag)
             {
                 case TokenType.Variable:
-                    _Statestack.Push(2);
+                    _Statestack.Push(3);
                     Consume();
                     State3();
                     break;
@@ -67,9 +86,9 @@ namespace YAYACC
             switch (_token.Tag)
             {
                 case TokenType.Colon:
-                    _Statestack.Push(3);
+                    _Statestack.Push(5);
                     Consume();
-                    State5();
+                    State5(true);
                     break;
                 default:
                     throw new Exception("Syntax Error");
@@ -86,7 +105,7 @@ namespace YAYACC
                     throw new Exception("Syntax Error");
             }
         }
-        public void State5()
+        public void State5(bool IsAction)
         {
             switch (_token.Tag)
             {
@@ -95,14 +114,14 @@ namespace YAYACC
                     Reduce(8);
                     break;
                 case TokenType.Terminal:
-                    _Statestack.Push(5);
+                    _Statestack.Push(8);
                     Consume();
-                    State8();
+                    State8(true);
                     break;
                 case TokenType.Variable:
-                    _Statestack.Push(5);
+                    _Statestack.Push(7);
                     Consume();
-                    State7();
+                    State7(true);
                     break;
                 default:
                     throw new Exception("Syntax Error");
@@ -115,14 +134,14 @@ namespace YAYACC
                 switch (_token.Tag)
                 {
                     case TokenType.Semicolon:
-                        _Statestack.Push(6);
+                        _Statestack.Push(12);
                         Consume();
                         State12();
                         break;
                     case TokenType.Pipe:
-                        _Statestack.Push(6);
+                        _Statestack.Push(11);
                         Consume();
-                        State11();
+                        State11(true);
                         break;
                     default:
                         throw new Exception("Syntax Error");
@@ -134,7 +153,7 @@ namespace YAYACC
             }
             
         }
-        public void State7()
+        public void State7(bool IsAction)
         {
             switch (_token.Tag)
             {
@@ -143,20 +162,20 @@ namespace YAYACC
                     Reduce(8);
                     break;
                 case TokenType.Terminal:
-                    _Statestack.Push(7);
+                    _Statestack.Push(8);
                     Consume();
-                    State8();
+                    State8(true);
                     break;
                 case TokenType.Variable:
                     _Statestack.Push(7);
                     Consume();
-                    State7();
+                    State7(true);
                     break;
                 default:
                     throw new Exception("Syntax Error");
             }
         }
-        public void State8()
+        public void State8(bool IsAction)
         {
             switch(_token.Tag)
             {
@@ -167,12 +186,12 @@ namespace YAYACC
                 case TokenType.Terminal:
                     _Statestack.Push(8);
                     Consume();
-                    State8();
+                    State8(true);
                     break;
                 case TokenType.Variable:
-                    _Statestack.Push(8);
+                    _Statestack.Push(7);
                     Consume();
-                    State7();
+                    State7(true);
                     break;
                 default:
                     throw new Exception("Syntax Error");
@@ -190,7 +209,7 @@ namespace YAYACC
                     throw new Exception("Syntax Error");
             }
         }
-        public void State11()
+        public void State11(bool IsAction)
         {
             switch (_token.Tag)
             {
@@ -199,14 +218,14 @@ namespace YAYACC
                     Reduce(8);
                     break;
                 case TokenType.Terminal:
-                    _Statestack.Push(11);
+                    _Statestack.Push(8);
                     Consume();
-                    State8();
+                    State8(true);
                     break;
                 case TokenType.Variable:
-                    _Statestack.Push(11);
+                    _Statestack.Push(7);
                     Consume();
-                    State7();
+                    State7(true);
                     break;
                 default:
                     throw new Exception("Syntax Error");
@@ -248,17 +267,17 @@ namespace YAYACC
                     throw new Exception("Syntax Error");
             }
         }
-        public void State15()
+        public void State15(bool IsAction)
         {
             switch (_token.Tag)
             {
                 case TokenType.Semicolon:
-                    _Statestack.Push(15);
+                    _Statestack.Push(11);
                     Consume();
-                    State11();
+                    State11(true);
                     break;
                 case TokenType.Pipe:
-                    _Statestack.Push(15);
+                    _Statestack.Push(12);
                     Consume();
                     State12();
                     break;
@@ -293,12 +312,36 @@ namespace YAYACC
                 _Statestack.Pop();
             }
             _stack.Push(rule.Variable);
+
+            //GOTO
             switch (_Statestack.Peek())
             {
                 case 0:
-
-                default:
+                    State0(false);
                     break;
+                case 2:
+                    State2(false);
+                    break;
+                case 5:
+                    State5(false);
+                    break;
+                case 6:
+                    State6(false);
+                    break;
+                case 7:
+                    State7(false);
+                    break;
+                case 8:
+                    State8(false);
+                    break;
+                case 11:
+                    State11(false);
+                    break;
+                case 15:
+                    State15(false);
+                    break;
+                default:
+                    throw new Exception("Syntax Error");
             }
         }
         public void Parse(string path)
