@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YAYACC
+﻿namespace YAYACC
 {
     public class Rule
     {
         public int PopQuantity { get; set; }
-        public string Variable { get; set; }        
+        public string Variable { get; set; }
+        public string Production { get; set; }
     }
 }

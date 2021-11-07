@@ -12,14 +12,14 @@ namespace YAYACC
         Stack<int> _Statestack;
         Dictionary<int, Rule> ToReduce = new Dictionary<int, Rule>
         {
-            { 1, new Rule { PopQuantity = 2, Variable = "GRAM"}},
-            { 2, new Rule { PopQuantity = 1, Variable = "GRAM"}},
-            { 3, new Rule { PopQuantity = 4, Variable = "RULE"}},
-            { 4, new Rule { PopQuantity = 3, Variable = "gRULE"}},
-            { 5, new Rule { PopQuantity = 1, Variable = "gRULE"}},
-            { 6, new Rule { PopQuantity = 2, Variable = "PROD"}},
-            { 7, new Rule { PopQuantity = 2, Variable = "PROD"}},
-            { 8, new Rule { PopQuantity = 0, Variable = "PROD"}}
+            { 1, new Rule { PopQuantity = 2, Variable = "GRAM", Production = "RULE GRAM"}},
+            { 2, new Rule { PopQuantity = 1, Variable = "GRAM", Production = "RULE"}},
+            { 3, new Rule { PopQuantity = 4, Variable = "RULE", Production = TokenType.Variable.ToString() + TokenType.Colon.ToString() + "PROD gRULE"}},
+            { 4, new Rule { PopQuantity = 3, Variable = "gRULE", Production = TokenType.Pipe.ToString() + "PROD gRULE"}},
+            { 5, new Rule { PopQuantity = 1, Variable = "gRULE", Production = TokenType.Semicolon.ToString()}},
+            { 6, new Rule { PopQuantity = 2, Variable = "PROD", Production = TokenType.Variable.ToString() + "PROD"}},
+            { 7, new Rule { PopQuantity = 2, Variable = "PROD", Production = TokenType.Terminal.ToString() + "PROD"}},
+            { 8, new Rule { PopQuantity = 1, Variable = "PROD"}}
         };
         public void State0(bool IsAction)
         {
