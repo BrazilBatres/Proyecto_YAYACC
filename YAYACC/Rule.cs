@@ -4,7 +4,9 @@ using System.Text;
 
 namespace YAYACC
 {
-    class Rule
+    public class Rule
     {
+        public int PopQuantity { get; set; }
+        public string Variable { get; set; }
     }
 }

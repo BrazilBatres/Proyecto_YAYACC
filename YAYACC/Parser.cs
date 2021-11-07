@@ -9,6 +9,10 @@ namespace YAYACC
         Scanner _scanner;
         Token _token;
         Stack<string> _stack;
+        Dictionary<int, Rule> ToReduce = new Dictionary<int, Rule>
+        {
+
+        };
         public void State0()
         {
             switch (_token.Tag)
@@ -259,6 +263,7 @@ namespace YAYACC
         public void Reduce(int rule)
         {
             //Necesitamos -> cantidad de POPs y Variable a meter, obtenerla con # de regla
+
         }
         public void Parse(string path)
         {
