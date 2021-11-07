@@ -67,18 +67,37 @@ namespace YAYACC
         }
         public void State2(bool IsAction)
         {
-            switch (_token.Tag)
+            if (IsAction)
             {
-                case TokenType.Variable:
-                    _Statestack.Push(3);
-                    Consume();
-                    State3();
-                    break;
-                case TokenType.EOF:
-                    Reduce(2);
-                    break;
-                default:
-                    throw new Exception("Syntax Error");
+                switch (_token.Tag)
+                {
+                    case TokenType.Variable:
+                        _Statestack.Push(3);
+                        Consume();
+                        State3();
+                        break;
+                    case TokenType.EOF:
+                        Reduce(2);
+                        break;
+                    default:
+                        throw new Exception("Syntax Error");
+                }
+            }
+            else //IsGOTO
+            {
+                switch (_stack.Peek())
+                {
+                    case "GRAM":
+                        _Statestack.Push(4);
+                        State4();
+                        break;
+                    case "RULE":
+                        _Statestack.Push(2);
+                        State2(true);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         public void State3()
