@@ -411,7 +411,11 @@ namespace YAYACC
             Rule rule = ToReduce[ruleNumber];
             for (int i = 0; i < rule.PopQuantity; i++)
             {
-                _stack.Pop();
+                string Popped = _stack.Pop();
+                if (Popped != rule.Production[i])
+                {
+                    throw new Exception("Syntax Error");
+                }
                 _Statestack.Pop();
             }
             _stack.Push(rule.Variable);
