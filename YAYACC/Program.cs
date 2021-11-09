@@ -5,6 +5,7 @@ namespace YAYACC
     {
         static void Main(string[] args)
         {            
+            //¡TODO OK!
             Parser parser = new Parser();
             try
             {
