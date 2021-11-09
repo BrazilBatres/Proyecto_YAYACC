@@ -1,7 +1,6 @@
 lines	: lines expr '\n' 
 	| lines '\n'
 	| 'e'
-	| '\e'
 	| 'a'
 	| 'e'
 	;

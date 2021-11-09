@@ -8,7 +8,7 @@ namespace YAYACC
     {
         //colocar dos veces " para que lo reconozca como símbolo en un string
         //colocar @ para que no den error los backslash
-        readonly string term_regex = @"^'([a-zA-Z!""#%&()*+,\-./:;<=>?[\]^_{|}~\d ]|(\\\\)|(\\n)|(\\t)|(\\')|(\\e))'";
+        readonly string term_regex = @"^'([a-zA-Z!""#%&()*+,\-./:;<=>?[\]^_{|}~\d ]|(\\\\)|(\\n)|(\\t)|(\\'))'";
         readonly string var_regex = @"^_*[a-zA-Z][a-zA-Z\d_]*";
 
         public Queue<string> _grammar;
