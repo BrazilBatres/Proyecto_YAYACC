@@ -5,6 +5,6 @@ namespace YAYACC
     {
         public int PopQuantity { get; set; }
         public string Variable { get; set; }
-        public List<string> Production { get; set; }        
+        public List<Token> Production { get; set; }   //Lista de Tokens     
     }
 }

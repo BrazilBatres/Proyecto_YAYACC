@@ -11,6 +11,7 @@ namespace YAYACC
         Stack<string> _stack;
         Stack<int> _Statestack;
         Stack<string> _Lexemestack;
+        
         readonly Dictionary<int, Rule> ToReduce = new Dictionary<int, Rule>
         {
             { 1, new Rule { PopQuantity = 2, Variable = "GRAM", Production = new List<string> { "GRAM", "RULE"}}},
@@ -438,6 +439,7 @@ namespace YAYACC
             }
             _stack.Push(rule.Variable);
 
+            //Construcción de Gramática
             switch (ruleNumber)
             {
                 case 3:
@@ -528,6 +530,7 @@ namespace YAYACC
             _token = _scanner.GetToken();
             _Statestack.Push(0);
             State0(true);
+
         }
 
         public void AddRule(Stack<string> rule)
