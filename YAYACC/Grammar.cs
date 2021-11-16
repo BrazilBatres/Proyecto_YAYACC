@@ -6,8 +6,7 @@ namespace YAYACC
     public class Grammar
     {
         public Dictionary<string,Variable> Variables { get; set; }
-        //public List<Variable> Variables { get; set; } //convertir a Diccionario que tenga como llave el nombre
-        public Variable InitVar { get; set; } //Setear este valor
+        public Variable InitVar { get; set; }
         public List<char> Terminals { get; set; } //Llenar esta lista
         //.y Parser
         List<Action[]> _ParseTableActions;
@@ -26,27 +25,12 @@ namespace YAYACC
                     Console.Write("Regla " + (i + 1) + ": ");
                     for (int j = 0; j < _actualVar.Rules[i].Count; j++)
                     {
-                        Console.Write(_actualVar.Rules[i][j] + " ");
+                        Console.Write(_actualVar.Rules[i][j].Value + " ");
                     }
                     Console.WriteLine();
                 }
                 Console.WriteLine("-------------------------------------------");
-            }
-            
-            //for (int i = 0; i < Variables.Count; i++)
-            //{                
-            //    Console.WriteLine("Variable " + Variables[i].Name + ":");
-            //    for (int j = 0; j < Variables[i].Rules.Count; j++)
-            //    {
-            //        Console.Write("Regla " + (j + 1) + ": ");
-            //        for (int h = 0; h < Variables[i].Rules[j].Count; h++)
-            //        {
-            //            Console.Write(Variables[i].Rules[j][h] + " ");
-            //        }
-            //        Console.WriteLine();
-            //    }
-            //    Console.WriteLine("-------------------------------------------");
-            //}
+            }                        
         }
 
         public void AddVariable(Variable _var)
