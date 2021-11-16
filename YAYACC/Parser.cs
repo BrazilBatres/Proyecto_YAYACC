@@ -10,22 +10,22 @@ namespace YAYACC
         Token _token;
         Stack<string> _stack;
         Stack<int> _Statestack;
-        Stack<string> _Lexemestack;
+        Stack<Token> _Lexemestack;
         
-        readonly Dictionary<int, RuleGrammar> ToReduce = new Dictionary<int, RuleGrammar>
+        readonly Dictionary<int, Rule> ToReduce = new Dictionary<int, Rule>
         {
-            { 1, new RuleGrammar { PopQuantity = 2, Variable = "GRAM", Production = new List<string> { "GRAM", "RULE"}}},
-            { 2, new RuleGrammar { PopQuantity = 1, Variable = "GRAM", Production = new List<string> { "RULE"}}},
-            { 3, new RuleGrammar { PopQuantity = 4, Variable = "RULE", Production = new List<string> { "gRULE", "PROD", TokenType.Colon.ToString(), TokenType.Variable.ToString()}}},
-            { 4, new RuleGrammar { PopQuantity = 3, Variable = "gRULE", Production = new List<string>{ "gRULE", "PROD", TokenType.Pipe.ToString()}}},
-            { 5, new RuleGrammar { PopQuantity = 1, Variable = "gRULE", Production = new List<string>{ TokenType.Semicolon.ToString()}}},
-            { 6, new RuleGrammar { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Variable.ToString()}}},
-            { 7, new RuleGrammar { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Terminal.ToString()}}},
-            { 8, new RuleGrammar { PopQuantity = 0, Variable = "PROD"}}
+            { 1, new Rule { PopQuantity = 2, Variable = "GRAM", Production = new List<string> { "GRAM", "RULE"}}},
+            { 2, new Rule { PopQuantity = 1, Variable = "GRAM", Production = new List<string> { "RULE"}}},
+            { 3, new Rule { PopQuantity = 4, Variable = "RULE", Production = new List<string> { "gRULE", "PROD", TokenType.Colon.ToString(), TokenType.Variable.ToString()}}},
+            { 4, new Rule { PopQuantity = 3, Variable = "gRULE", Production = new List<string>{ "gRULE", "PROD", TokenType.Pipe.ToString()}}},
+            { 5, new Rule { PopQuantity = 1, Variable = "gRULE", Production = new List<string>{ TokenType.Semicolon.ToString()}}},
+            { 6, new Rule { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Variable.ToString()}}},
+            { 7, new Rule { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Terminal.ToString()}}},
+            { 8, new Rule { PopQuantity = 0, Variable = "PROD"}}
         };
         public Grammar grammar = new Grammar();
-        List<List<string>> Auxrules;
-        Stack<string> Auxrule;
+        List<List<Token>> Auxrules;
+        Stack<Token> Auxrule;
         Variable Auxvariable;        
         bool newAuxRule = false;
         bool newAuxRules = false;
@@ -422,13 +422,18 @@ namespace YAYACC
             }
             if (_token.Value != "\0")
             {
-                _Lexemestack.Push(_token.Value);
+                Token _newToken = new Token
+                {
+                    Tag = _token.Tag,
+                    Value = _token.Value
+                };
+                _Lexemestack.Push(_newToken);
             }            
             _token = _scanner.GetToken();            
         }
         public void Reduce(int ruleNumber)
         {            
-            RuleGrammar rule = ToReduce[ruleNumber];
+            Rule rule = ToReduce[ruleNumber];
             for (int i = 0; i < rule.PopQuantity; i++)
             {
                 string Popped = _stack.Pop();
@@ -443,10 +448,11 @@ namespace YAYACC
             //Construcción de Gramática
             switch (ruleNumber)
             {
-                case 3:                    
+                case 3:
+                    Token _actualToken = _Lexemestack.Pop();
                     Auxvariable = new Variable
                     {
-                        Name = _Lexemestack.Pop()
+                        Name = _actualToken.Value
                     };
                     Auxvariable.Rules = Auxrules;
                     newAuxRule = false;
@@ -468,7 +474,7 @@ namespace YAYACC
                 case 5:
                     if (!newAuxRules)
                     {
-                        Auxrules = new List<List<string>>();
+                        Auxrules = new List<List<Token>>();
                         newAuxRules = true;
                     }
                     AddRule(Auxrule);
@@ -479,7 +485,7 @@ namespace YAYACC
                     {
                         if (!newAuxRules)
                         {
-                            Auxrules = new List<List<string>>();
+                            Auxrules = new List<List<Token>>();
                             newAuxRules = true;
                         }
                         AddRule(Auxrule);
@@ -488,7 +494,7 @@ namespace YAYACC
                     }
                     if (!newAuxRule)
                     {
-                        Auxrule = new Stack<string>();
+                        Auxrule = new Stack<Token>();
                         newAuxRule = true;
                     }
                     Auxrule.Push(_Lexemestack.Pop());
@@ -533,7 +539,7 @@ namespace YAYACC
             _scanner = new Scanner(path);
             _stack = new Stack<string>();
             _Statestack = new Stack<int>();
-            _Lexemestack = new Stack<string>();
+            _Lexemestack = new Stack<Token>();
             _stack.Push("#");
             _token = _scanner.GetToken();
             _Statestack.Push(0);
@@ -541,12 +547,12 @@ namespace YAYACC
 
         }
 
-        public void AddRule(Stack<string> rule)
+        public void AddRule(Stack<Token> rule)
         {
-            List<string> FixedRules = new List<string>();
+            List<Token> FixedRules = new List<Token>();
             int _count = rule.Count;
             for (int i = 0; i < _count; i++)
-            {
+            {                
                 FixedRules.Add(rule.Pop());
             }            
             bool exists = false;

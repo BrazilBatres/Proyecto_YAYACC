@@ -16,21 +16,37 @@ namespace YAYACC
         int TermQty;
         public void Print()
         {
-            Console.WriteLine("-------------------------------------------");
-            for (int i = 0; i < Variables.Count; i++)
-            {                
-                Console.WriteLine("Variable " + Variables[i].Name + ":");
-                for (int j = 0; j < Variables[i].Rules.Count; j++)
+            Console.WriteLine("-------------------------------------------");            
+            foreach (var item1 in Variables)
+            {
+                Variable _actualVar = item1.Value;
+                Console.WriteLine("Variable " + _actualVar.Name + ":");
+                for (int i = 0; i < _actualVar.Rules.Count; i++)
                 {
-                    Console.Write("Regla " + (j + 1) + ": ");
-                    for (int h = 0; h < Variables[i].Rules[j].Count; h++)
+                    Console.Write("Regla " + (i + 1) + ": ");
+                    for (int j = 0; j < _actualVar.Rules[i].Count; j++)
                     {
-                        Console.Write(Variables[i].Rules[j][h] + " ");
+                        Console.Write(_actualVar.Rules[i][j] + " ");
                     }
                     Console.WriteLine();
                 }
                 Console.WriteLine("-------------------------------------------");
             }
+            
+            //for (int i = 0; i < Variables.Count; i++)
+            //{                
+            //    Console.WriteLine("Variable " + Variables[i].Name + ":");
+            //    for (int j = 0; j < Variables[i].Rules.Count; j++)
+            //    {
+            //        Console.Write("Regla " + (j + 1) + ": ");
+            //        for (int h = 0; h < Variables[i].Rules[j].Count; h++)
+            //        {
+            //            Console.Write(Variables[i].Rules[j][h] + " ");
+            //        }
+            //        Console.WriteLine();
+            //    }
+            //    Console.WriteLine("-------------------------------------------");
+            //}
         }
 
         public void AddVariable(Variable _var)
@@ -38,12 +54,13 @@ namespace YAYACC
             bool _inserted = false;
             foreach (var item in Variables)
             {
-                if (item.Name == _var.Name)
+                Variable _actualVar = item.Value;
+                if (_actualVar.Name == _var.Name)
                 {
                     foreach (var item2 in _var.Rules)
                     {
                         bool AlreadyInRule = false;
-                        foreach (var item3 in item.Rules)
+                        foreach (var item3 in _actualVar.Rules)
                         {
                             if (Enumerable.SequenceEqual(item2, item3))
                             {
@@ -52,7 +69,7 @@ namespace YAYACC
                         }
                         if (!AlreadyInRule)
                         {
-                            item.Rules.Add(item2);
+                            _actualVar.Rules.Add(item2);
                         }
                     }
                     _inserted = true;
@@ -61,61 +78,61 @@ namespace YAYACC
             }
             if (!_inserted)
             {
-                Variables.Add(_var);
+                Variables.Add(_var.Name,_var);
             }
         }
-        public void BuildParser()
-        {
-            VarQty = Variables.Count;
-            TermQty = Terminals.Count;
+        //public void BuildParser()
+        //{
+        //    VarQty = Variables.Count;
+        //    TermQty = Terminals.Count;
 
-            _ParseTableActions = new List<Action[]>();
-            _ParseTableGOTO = new Dictionary<int, int[]>();
+        //    _ParseTableActions = new List<Action[]>();
+        //    _ParseTableGOTO = new Dictionary<int, int[]>();
 
-            //Preparación para regla de gramática aumentada
-            Rule AugGrammarRule = new Rule();
-            AugGrammarRule.Variable = InitVar.Name + "'";
-            Token InitVarToken = new Token();
-            InitVarToken.Tag = TokenType.Variable;
+        //    //Preparación para regla de gramática aumentada
+        //    Rule AugGrammarRule = new Rule();
+        //    AugGrammarRule.Variable = InitVar.Name + "'";
+        //    Token InitVarToken = new Token();
+        //    InitVarToken.Tag = TokenType.Variable;
 
-            //Creación de regla de gramática aumentada
-            InitVarToken.Value = InitVar.Name;
-            AugGrammarRule.Production.Add(InitVarToken);
+        //    //Creación de regla de gramática aumentada
+        //    InitVarToken.Value = InitVar.Name;
+        //    AugGrammarRule.Production.Add(InitVarToken);
 
-            //Crear estado 0
-            StateItem kernel = new StateItem()
-            {
-                rule = AugGrammarRule,
-                pointIndex = 0,
-                Lookahead = new List<char>() { (char)0 }
-            };
-            newState(kernel);
-        }
+        //    //Crear estado 0
+        //    StateItem kernel = new StateItem()
+        //    {
+        //        rule = AugGrammarRule,
+        //        pointIndex = 0,
+        //        Lookahead = new List<char>() { (char)0 }
+        //    };
+        //    newState(kernel);
+        //}
         public void newState(StateItem kernelItem)
         {
             List<StateItem> items = new List<StateItem>();
             //Closure
             
         }
-        public void Closure(StateItem kernelItem, List<StateItem> items)
-        {
-            Rule kernelRule = kernelItem.rule;
-            int pointInd = kernelItem.pointIndex;
-            if (pointInd < kernelRule.Production.Count)
-            {
-                Token actualSymbol = kernelRule.Production[pointInd];
-                if (actualSymbol.Tag == TokenType.Variable)
-                {
-                    Variable variable = Variables.G
-                }
-            }
-            else
-            {
-                if (rule.Variable == InitVar.Name + "'") //accept
-                {
+        //public void Closure(StateItem kernelItem, List<StateItem> items)
+        //{
+        //    Rule kernelRule = kernelItem.rule;
+        //    int pointInd = kernelItem.pointIndex;
+        //    if (pointInd < kernelRule.Production.Count)
+        //    {
+        //        Token actualSymbol = kernelRule.Production[pointInd];
+        //        if (actualSymbol.Tag == TokenType.Variable)
+        //        {
+        //            Variable variable = Variables.G
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (rule.Variable == InitVar.Name + "'") //accept
+        //        {
 
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
     }
 }
