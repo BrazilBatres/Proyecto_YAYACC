@@ -498,6 +498,10 @@ namespace YAYACC
                         newAuxRule = true;
                     }
                     Auxrule.Push(_Lexemestack.Pop());
+                    if (Auxrule.Peek().Tag == TokenType.Terminal)
+                    {
+                        AddTerminal(Auxrule.Peek().Value);
+                    }                    
                     break;                                    
                 default:
                     break;
@@ -543,6 +547,7 @@ namespace YAYACC
             _stack.Push("#");
             _token = _scanner.GetToken();
             _Statestack.Push(0);
+            grammar.Terminals = new List<char>();
             State0(true);
 
         }
@@ -568,6 +573,23 @@ namespace YAYACC
             {
                 Auxrules.Add(FixedRules);
             }            
+        }
+
+        public void AddTerminal(string terminal)
+        {
+            bool exist = false;
+            char[] _char = terminal.ToCharArray();
+            for (int i = 0; i < grammar.Terminals.Count; i++)
+            {                
+                if (grammar.Terminals[i].Equals(_char[0]))
+                {
+                    exist = true;
+                }
+            }
+            if (!exist)
+            {
+                grammar.Terminals.Add(_char[0]);
+            }
         }
     }
 }
