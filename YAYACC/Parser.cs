@@ -469,7 +469,7 @@ namespace YAYACC
                         //grammar.Variables = new List<Variable>();
                         grammar.Variables = new Dictionary<string, Variable>();
                     }
-                    grammar.Variables.Add(Auxvariable.Name,Auxvariable);
+                    grammar.AddVariable(Auxvariable);                    
                     break;
                 case 5:
                     if (!newAuxRules)

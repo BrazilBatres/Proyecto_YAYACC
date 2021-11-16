@@ -73,45 +73,34 @@ namespace YAYACC
             _ParseTableActions = new List<Action[]>();
             _ParseTableGOTO = new Dictionary<int, int[]>();
 
-            //Preparación para regla de gramática aumentada
-            Variable _Var = new Variable
+            //Crear estado 0
+            List<StateItem> _StateItem = new List<StateItem>
             {
-                Name = InitVar.Name + "'",
-                Rules = new List<List<Token>>
+                new StateItem()
                 {
-                    new List<Token>
+                    nameVariable = InitVar.Name + "'",
+                    rule = new List<Token>
                     {
                         { new Token { Tag = TokenType.Variable, Value = InitVar.Name }}
-                    }
+                    },
+                    pointIndex = 0,
+                    Lookahead = new List<char>() { (char)0 }
                 }
-            };
-            //Rule AugGrammarRule = new Rule();
-            //AugGrammarRule.Variable = InitVar.Name + "'";
-            //Token InitVarToken = new Token();
-            //InitVarToken.Tag = TokenType.Variable;
-
-            //Creación de regla de gramática aumentada            
-            //InitVarToken.Value = InitVar.Name;
-            //AugGrammarRule.Production.Add(InitVarToken);
-
-            //Crear estado 0
-            StateItem kernel = new StateItem()
-            {
-                variable = _Var,
-                pointIndex = 0,
-                Lookahead = new List<char>() { (char)0 }
-            };
-            newState(kernel);
+            };            
+            newState(_StateItem);
         }
-        public void newState(StateItem kernelItem)
+        public void newState(List<StateItem> kernelItems)
         {
-            List<StateItem> items = new List<StateItem>();
             //Closure
-            
+            int kernelItemsCount = kernelItems.Count;
+            for (int i = 0; i < kernelItemsCount; i++)
+            {
+                //Closure(kernelItems[i], kernelItems);
+            }            
         }
         //public void Closure(StateItem kernelItem, List<StateItem> items)
         //{
-        //    Rule kernelRule = kernelItem.rule;
+        //    List<List<Token>> kernelRule = kernelItem.variable.Rules;
         //    int pointInd = kernelItem.pointIndex;
         //    if (pointInd < kernelRule.Production.Count)
         //    {
