@@ -5,7 +5,8 @@ namespace YAYACC
 {
     public class Grammar
     {
-        public List<Variable> Variables { get; set; } //convertir a Diccionario que tenga como llave el nombre
+        public Dictionary<string,Variable> Variables { get; set; }
+        //public List<Variable> Variables { get; set; } //convertir a Diccionario que tenga como llave el nombre
         public Variable InitVar { get; set; } //Setear este valor
         public List<char> Terminals { get; set; } //Llenar esta lista
         //.y Parser

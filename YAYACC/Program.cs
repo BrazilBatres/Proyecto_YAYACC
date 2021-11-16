@@ -9,7 +9,7 @@ namespace YAYACC
             Parser parser = new Parser();
             try
             {
-                parser.Parse(args[0]);
+                parser.Parse("Gramatica_1.y");
                 Console.WriteLine("Expresión OK");
                 parser.grammar.Print();
                 Console.WriteLine("Press any key to continue...");

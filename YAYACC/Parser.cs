@@ -12,16 +12,16 @@ namespace YAYACC
         Stack<int> _Statestack;
         Stack<string> _Lexemestack;
         
-        readonly Dictionary<int, Rule> ToReduce = new Dictionary<int, Rule>
+        readonly Dictionary<int, RuleGrammar> ToReduce = new Dictionary<int, RuleGrammar>
         {
-            { 1, new Rule { PopQuantity = 2, Variable = "GRAM", Production = new List<string> { "GRAM", "RULE"}}},
-            { 2, new Rule { PopQuantity = 1, Variable = "GRAM", Production = new List<string> { "RULE"}}},
-            { 3, new Rule { PopQuantity = 4, Variable = "RULE", Production = new List<string> { "gRULE", "PROD", TokenType.Colon.ToString(), TokenType.Variable.ToString()}}},
-            { 4, new Rule { PopQuantity = 3, Variable = "gRULE", Production = new List<string>{ "gRULE", "PROD", TokenType.Pipe.ToString()}}},
-            { 5, new Rule { PopQuantity = 1, Variable = "gRULE", Production = new List<string>{ TokenType.Semicolon.ToString()}}},
-            { 6, new Rule { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Variable.ToString()}}},
-            { 7, new Rule { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Terminal.ToString()}}},
-            { 8, new Rule { PopQuantity = 0, Variable = "PROD"}}
+            { 1, new RuleGrammar { PopQuantity = 2, Variable = "GRAM", Production = new List<string> { "GRAM", "RULE"}}},
+            { 2, new RuleGrammar { PopQuantity = 1, Variable = "GRAM", Production = new List<string> { "RULE"}}},
+            { 3, new RuleGrammar { PopQuantity = 4, Variable = "RULE", Production = new List<string> { "gRULE", "PROD", TokenType.Colon.ToString(), TokenType.Variable.ToString()}}},
+            { 4, new RuleGrammar { PopQuantity = 3, Variable = "gRULE", Production = new List<string>{ "gRULE", "PROD", TokenType.Pipe.ToString()}}},
+            { 5, new RuleGrammar { PopQuantity = 1, Variable = "gRULE", Production = new List<string>{ TokenType.Semicolon.ToString()}}},
+            { 6, new RuleGrammar { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Variable.ToString()}}},
+            { 7, new RuleGrammar { PopQuantity = 2, Variable = "PROD", Production = new List<string> { "PROD", TokenType.Terminal.ToString()}}},
+            { 8, new RuleGrammar { PopQuantity = 0, Variable = "PROD"}}
         };
         public Grammar grammar = new Grammar();
         List<List<string>> Auxrules;
@@ -30,6 +30,7 @@ namespace YAYACC
         bool newAuxRule = false;
         bool newAuxRules = false;
         bool isOtherRule = false;
+        bool IsInitVar = true;
 
         #region States
         public void State0(bool IsAction)
@@ -427,7 +428,7 @@ namespace YAYACC
         }
         public void Reduce(int ruleNumber)
         {            
-            Rule rule = ToReduce[ruleNumber];
+            RuleGrammar rule = ToReduce[ruleNumber];
             for (int i = 0; i < rule.PopQuantity; i++)
             {
                 string Popped = _stack.Pop();
@@ -442,7 +443,7 @@ namespace YAYACC
             //Construcción de Gramática
             switch (ruleNumber)
             {
-                case 3:
+                case 3:                    
                     Auxvariable = new Variable
                     {
                         Name = _Lexemestack.Pop()
@@ -451,11 +452,18 @@ namespace YAYACC
                     newAuxRule = false;
                     newAuxRules = false;
 
+                    if (IsInitVar) //Setear valor de grammar.InitVar
+                    {
+                        grammar.InitVar = Auxvariable;
+                        IsInitVar = false;
+                    }
+
                     if (grammar.Variables == null)
                     {
-                        grammar.Variables = new List<Variable>();
+                        //grammar.Variables = new List<Variable>();
+                        grammar.Variables = new Dictionary<string, Variable>();
                     }
-                    grammar.AddVariable(Auxvariable);
+                    grammar.Variables.Add(Auxvariable.Name,Auxvariable);
                     break;
                 case 5:
                     if (!newAuxRules)
