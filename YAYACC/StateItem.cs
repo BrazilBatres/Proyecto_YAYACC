@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿using System.Collections.Generic;
 namespace YAYACC
 {
     public struct StateItem
     {
-        public Rule rule;
+        public Variable variable;
         public int pointIndex;
         public List<char> Lookahead;
     }

@@ -65,33 +65,44 @@ namespace YAYACC
                 Variables.Add(_var.Name,_var);
             }
         }
-        //public void BuildParser()
-        //{
-        //    VarQty = Variables.Count;
-        //    TermQty = Terminals.Count;
+        public void BuildParser()
+        {
+            VarQty = Variables.Count;
+            TermQty = Terminals.Count;
 
-        //    _ParseTableActions = new List<Action[]>();
-        //    _ParseTableGOTO = new Dictionary<int, int[]>();
+            _ParseTableActions = new List<Action[]>();
+            _ParseTableGOTO = new Dictionary<int, int[]>();
 
-        //    //Preparación para regla de gramática aumentada
-        //    Rule AugGrammarRule = new Rule();
-        //    AugGrammarRule.Variable = InitVar.Name + "'";
-        //    Token InitVarToken = new Token();
-        //    InitVarToken.Tag = TokenType.Variable;
+            //Preparación para regla de gramática aumentada
+            Variable _Var = new Variable
+            {
+                Name = InitVar.Name + "'",
+                Rules = new List<List<Token>>
+                {
+                    new List<Token>
+                    {
+                        { new Token { Tag = TokenType.Variable, Value = InitVar.Name }}
+                    }
+                }
+            };
+            //Rule AugGrammarRule = new Rule();
+            //AugGrammarRule.Variable = InitVar.Name + "'";
+            //Token InitVarToken = new Token();
+            //InitVarToken.Tag = TokenType.Variable;
 
-        //    //Creación de regla de gramática aumentada
-        //    InitVarToken.Value = InitVar.Name;
-        //    AugGrammarRule.Production.Add(InitVarToken);
+            //Creación de regla de gramática aumentada            
+            //InitVarToken.Value = InitVar.Name;
+            //AugGrammarRule.Production.Add(InitVarToken);
 
-        //    //Crear estado 0
-        //    StateItem kernel = new StateItem()
-        //    {
-        //        rule = AugGrammarRule,
-        //        pointIndex = 0,
-        //        Lookahead = new List<char>() { (char)0 }
-        //    };
-        //    newState(kernel);
-        //}
+            //Crear estado 0
+            StateItem kernel = new StateItem()
+            {
+                variable = _Var,
+                pointIndex = 0,
+                Lookahead = new List<char>() { (char)0 }
+            };
+            newState(kernel);
+        }
         public void newState(StateItem kernelItem)
         {
             List<StateItem> items = new List<StateItem>();
