@@ -91,32 +91,37 @@ namespace YAYACC
         }
         public void newState(List<StateItem> kernelItems)
         {
-            //Closure
-            int kernelItemsCount = kernelItems.Count;
-            for (int i = 0; i < kernelItemsCount; i++)
+            for (int i = 0; i < kernelItems.Count; i++)
             {
-                //Closure(kernelItems[i], kernelItems);
+                Closure(kernelItems[i], kernelItems);
             }            
         }
-        //public void Closure(StateItem kernelItem, List<StateItem> items)
-        //{
-        //    List<List<Token>> kernelRule = kernelItem.variable.Rules;
-        //    int pointInd = kernelItem.pointIndex;
-        //    if (pointInd < kernelRule.Production.Count)
-        //    {
-        //        Token actualSymbol = kernelRule.Production[pointInd];
-        //        if (actualSymbol.Tag == TokenType.Variable)
-        //        {
-        //            Variable variable = Variables.G
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (rule.Variable == InitVar.Name + "'") //accept
-        //        {
+        public void Closure(StateItem kernelItem, List<StateItem> items)
+        {
+            List<Token> kernelProd = kernelItem.ruleProduction;
+            int pointInd = kernelItem.pointIndex;
+            if (pointInd < kernelProd.Count)
+            {
+                Token actualSymbol = kernelProd[pointInd]; //Obtener símbolo que está después del punto
+                if (actualSymbol.Tag == TokenType.Variable) //GOTO
+                {
+                }
+                else //Shift
+                {
 
-        //        }
-        //    }
-        //}
+                }
+            }
+            else
+            {
+                if (kernelItem.nameVariable == InitVar.Name + "'") //accept
+                {
+
+                }
+                else //Reduce
+                {
+
+                }
+            }
+        }
     }
 }
