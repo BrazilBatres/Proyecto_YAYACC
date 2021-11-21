@@ -79,7 +79,7 @@ namespace YAYACC
                 new StateItem()
                 {
                     nameVariable = InitVar.Name + "'",
-                    rule = new List<Token>
+                    ruleProduction = new List<Token>
                     {
                         { new Token { Tag = TokenType.Variable, Value = InitVar.Name }}
                     },
@@ -100,28 +100,30 @@ namespace YAYACC
         {
             List<Token> kernelProd = kernelItem.ruleProduction;
             int pointInd = kernelItem.pointIndex;
-            if (pointInd < kernelProd.Count)
+            if (pointInd < kernelProd.Count) // Si el punto no está al final
             {
                 Token actualSymbol = kernelProd[pointInd]; //Obtener símbolo que está después del punto
-                if (actualSymbol.Tag == TokenType.Variable) //GOTO
+                if (actualSymbol.Tag == TokenType.Variable) //si el punto está antes de una variable
                 {
-                }
-                else //Shift
-                {
-
-                }
-            }
-            else
-            {
-                if (kernelItem.nameVariable == InitVar.Name + "'") //accept
-                {
-
-                }
-                else //Reduce
-                {
-
+                    Variables.TryGetValue(actualSymbol.Value, out Variable currentVar);
+                    foreach (var item in currentVar.Rules)
+                    {
+                        StateItem newItem = new StateItem()
+                        {
+                            ruleProduction = item,
+                            nameVariable = actualSymbol.Value,
+                            pointIndex = 0,
+                            //Lookahead = 
+                        };
+                        items.Add()
+                    }
                 }
             }
+        }
+        public List<char> First (List<Token> Production, List<char> Lookahead)
+        {
+            List<char> toReturn = new List<char>();
+            return toReturn;
         }
     }
 }
