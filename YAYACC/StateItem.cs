@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 namespace YAYACC
 {
-    public struct StateItem
+    public struct StateItem : IComparable
     {
         public string nameVariable;
         public List<Token> ruleProduction;
