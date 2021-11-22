@@ -11,6 +11,7 @@ namespace YAYACC
         List<State> _states;
         List<char> _terminals;
         Dictionary<string, Variable> _variables;
+        
         List<List<Token>> _numberedRules;
         
         List<string> _correspondingVariable = new List<string>();
@@ -29,38 +30,49 @@ namespace YAYACC
             }
 
         }
-        public int GenerateTable()
+        public bool GenerateTable()
         {
-            foreach (var currentState in _states)
+            try
             {
-                Action[] result = new Action[_terminals.Count];
-                foreach (var sucesor in currentState.Successors)
+                int StateIndex = 0;
+                foreach (var currentState in _states)
                 {
-                    
-                    if (sucesor.Key.Value == "Terminal")
+                    Action[] result = new Action[_terminals.Count];
+                    int[] Goto = new int[_variables.Count];
+                    foreach (var sucesor in currentState.Successors)
                     {
-                        InsertShift(sucesor, ref result);
-                    }
-                    else
-                    {
-                        InsertGOTO();
-                    }
-                  
-                }
-                
-                foreach (var item in currentState.items)
-                {
-                    if (item.pointIndex == item.ruleProduction.Count)
-                    {
-                        int Key = _numberedRules.IndexOf(item.ruleProduction);
-                        InsertReduce(item.Lookahead,ref result,Key);
-                    }
-                }
 
-                Actions.Add(result);
+                        if (sucesor.Key.Value == "Terminal")
+                        {
+                            InsertShift(sucesor, ref result);
+                        }
+                        else
+                        {
+                            InsertGOTO(sucesor, ref Goto);
+                        }
+
+                    }
+
+                    foreach (var item in currentState.items)
+                    {
+                        if (item.pointIndex == item.ruleProduction.Count)
+                        {
+                            int Key = _numberedRules.IndexOf(item.ruleProduction);
+                            InsertReduce(item.Lookahead, ref result, Key);
+                        }
+                    }
+                    GOTO.Add(StateIndex, Goto);
+                    Actions.Add(result);
+                    StateIndex++;
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
             }
         }
-
 
         public void InsertReduce(List<char> Lookahead, ref Action[] result, int ruleNum)
         {
@@ -91,9 +103,20 @@ namespace YAYACC
             result[_index] = action;
         }
 
-        public void InsertGOTO()
+        public void InsertGOTO(KeyValuePair<Token, int> Sucesor, ref int[] Goto)
         {
-            int[] Goto = new int[_variables.Count];
+            int index =0;
+
+            foreach (var item in _variables)
+            {
+                if (item.Key == Sucesor.Key.Value)
+                {
+                    break;
+                }
+                index++;
+            }
+
+            Goto[index] = Sucesor.Value;
         }
     }
 }
