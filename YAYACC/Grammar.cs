@@ -9,8 +9,6 @@ namespace YAYACC
         public Variable InitVar { get; set; }
         public List<char> Terminals { get; set; } //Llenar esta lista
         //.y Parser
-        List<Action[]> _ParseTableActions;
-        Dictionary<int, int[]> _ParseTableGOTO;
         List<State> _states;
         int VarQty;
         int TermQty;
@@ -71,9 +69,6 @@ namespace YAYACC
         {
             VarQty = Variables.Count;
             TermQty = Terminals.Count;
-
-            _ParseTableActions = new List<Action[]>();
-            _ParseTableGOTO = new Dictionary<int, int[]>();
             _states = new List<State>();
 
             //Crear estado 0
