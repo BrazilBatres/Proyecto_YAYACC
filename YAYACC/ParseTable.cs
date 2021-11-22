@@ -7,12 +7,12 @@ namespace YAYACC
     public class ParseTable
     {
         List<Action[]> Actions = new List<Action[]>();
-        Dictionary<int, int[]> GOTO;
+        Dictionary<int, int[]> GOTO = new Dictionary<int, int[]>();
         List<State> _states;
         List<char> _terminals;
-        Dictionary<string, Variable> _variables;
-        
-        List<List<Token>> _numberedRules;
+        Dictionary<string, Variable> _variables;        
+
+        List<List<Token>> _numberedRules = new List<List<Token>>();
         
         List<string> _correspondingVariable = new List<string>();
         public ParseTable(List<State> states, List<char> Terminals, Dictionary<string,Variable> Variables)

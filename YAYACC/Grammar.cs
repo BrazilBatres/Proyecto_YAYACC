@@ -8,6 +8,7 @@ namespace YAYACC
         public Dictionary<string,Variable> Variables { get; set; }
         public Variable InitVar { get; set; }
         public List<char> Terminals { get; set; } //Llenar esta lista
+        public ParseTable parseTable { get; set; }
         //.y Parser
         List<State> _states;
         int VarQty;
@@ -86,7 +87,16 @@ namespace YAYACC
                 }
             };
             GenerateState(_StateItem);
-            AddSuccessors(_states.Last());
+            for (int i = 0; i < _states.Count; i++)
+            {
+                if (_states[i].Successors.Count == 0)
+                {
+                    AddSuccessors(_states[i]);
+                }
+            }
+            //AddSuccessors(_states.Last());
+            parseTable = new ParseTable(_states, Terminals, Variables);
+            parseTable.GenerateTable();
         }
         public int GenerateState(List<StateItem> kernelItems)
         {
@@ -120,34 +130,37 @@ namespace YAYACC
             {
                 var item = lastState.items[i];
                 int pointInd = item.pointIndex;
-                Token afterPointToken = item.ruleProduction[pointInd];
-                if (!lastState.Successors.ContainsKey(afterPointToken))
+                if (pointInd < item.ruleProduction.Count)
                 {
-                    //primer kernel
-                    List<StateItem> Kernels = new List<StateItem>();
-                    StateItem firstkernel = new StateItem()
+                    Token afterPointToken = item.ruleProduction[pointInd];
+                    if (!lastState.Successors.ContainsKey(afterPointToken))
                     {
-                        nameVariable = item.nameVariable,
-                        pointIndex = item.pointIndex + 1,
-                        ruleProduction = item.ruleProduction,
-                        Lookahead = new List<char>() { (char)0 }
-                    };
-                    Kernels.Add(firstkernel);
-                    //buscar otros kernels
-                    for (int j = i + 1; j < lastState.items.Count; j++)
-                    {
-                        var tocheck_item = lastState.items[j];
-                        int tocheck_pointInd = tocheck_item.pointIndex;
-                        Token tocheck_aftPointToken = tocheck_item.ruleProduction[tocheck_pointInd];
-                        if (tocheck_aftPointToken.CompareTo(afterPointToken) == 0) //si tiene el mismo símbolo después del punto, entonces va como kernel al mismo estado
+                        //primer kernel
+                        List<StateItem> Kernels = new List<StateItem>();
+                        StateItem firstkernel = new StateItem()
                         {
-                            Kernels.Add(tocheck_item);
+                            nameVariable = item.nameVariable,
+                            pointIndex = item.pointIndex + 1,
+                            ruleProduction = item.ruleProduction,
+                            Lookahead = new List<char>() { (char)0 }
+                        };
+                        Kernels.Add(firstkernel);
+                        //buscar otros kernels
+                        for (int j = i + 1; j < lastState.items.Count; j++)
+                        {
+                            var tocheck_item = lastState.items[j];
+                            int tocheck_pointInd = tocheck_item.pointIndex;
+                            Token tocheck_aftPointToken = tocheck_item.ruleProduction[tocheck_pointInd];
+                            if (tocheck_aftPointToken.CompareTo(afterPointToken) == 0) //si tiene el mismo símbolo después del punto, entonces va como kernel al mismo estado
+                            {
+                                Kernels.Add(tocheck_item);
+                            }
                         }
+                        int SucessorStateID = GenerateState(Kernels);
+                        //AddSuccessors(_states.Last());
+                        lastState.Successors.Add(afterPointToken, SucessorStateID);
                     }
-                    int SucessorStateID = GenerateState(Kernels);
-                    AddSuccessors(_states.Last());
-                    lastState.Successors.Add(afterPointToken, SucessorStateID);
-                }
+                }                
             }
         }
         public void Closure(StateItem kernelItem, List<StateItem> items)

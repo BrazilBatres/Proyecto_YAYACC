@@ -13,8 +13,8 @@ namespace YAYACC
         public int CompareTo(object _object)
         {
             StateItem _stateItem = (StateItem)_object;
-
-            if ((Enumerable.SequenceEqual(ruleProduction,_stateItem.ruleProduction)) && (pointIndex == _stateItem.pointIndex) && (nameVariable == _stateItem.nameVariable))
+            bool listEquals = Enumerable.SequenceEqual(ruleProduction, _stateItem.ruleProduction);
+            if (listEquals && (pointIndex == _stateItem.pointIndex) && (nameVariable == _stateItem.nameVariable))
             {
                 return 0;
             }

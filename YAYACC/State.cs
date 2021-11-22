@@ -20,6 +20,10 @@ namespace YAYACC
             State _stateItem = (State)_object;
             int i = 0;
 
+            if (_stateItem.items.Count != items.Count)
+            {
+                return 1;
+            }
             foreach (var item in items)
             {
                 var item2 = _stateItem.items[i];
