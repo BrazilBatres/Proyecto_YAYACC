@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace YAYACC
 {
-    public class State : IComparable
+    public class State
     {
         public List<StateItem> items;
 
@@ -15,7 +15,7 @@ namespace YAYACC
             items = new List<StateItem>();
         }
 
-        public int CompareTo(object _object)
+        public int CompareToState(object _object, bool onlyCore)
         {
             State _stateItem = (State)_object;
 
@@ -23,6 +23,7 @@ namespace YAYACC
             {
                 return 1;
             }
+
             bool found = true;
             foreach (var item in items)
             {
@@ -31,10 +32,20 @@ namespace YAYACC
                     found = false;
                     foreach (var item2 in _stateItem.items)
                     {
-                        if (item.nameVariable == item2.nameVariable && item.pointIndex == item2.pointIndex && item.ruleProduction == item2.ruleProduction)
+                        if (item.nameVariable == item2.nameVariable && item.pointIndex == item2.pointIndex && Enumerable.SequenceEqual(item.ruleProduction, item2.ruleProduction))//A->Sa A->aS
                         {
-                            found = true;
-                            break;
+                            List<char> Lookahead1 = item.Lookahead.OrderBy(x => x).ToList();
+                            List<char> Lookahead2 = item2.Lookahead.OrderBy(x => x).ToList();
+                            if (!onlyCore && (Enumerable.SequenceEqual(Lookahead1, Lookahead2)))
+                            {
+                                found = true;
+                                break;
+                            }
+                            else if (onlyCore)
+                            {
+                                found = true;
+                                break;
+                            }
                         }
                     }
                 }

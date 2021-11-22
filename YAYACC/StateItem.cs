@@ -9,6 +9,8 @@ namespace YAYACC
         public List<Token> ruleProduction;
         public int pointIndex;
         public List<char> Lookahead;
+        //solo para kernels:
+        public bool Spontaneous;
 
         public int CompareTo(object _object)
         {
