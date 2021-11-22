@@ -150,11 +150,22 @@ namespace YAYACC
                         {
                             var tocheck_item = lastState.items[j];
                             int tocheck_pointInd = tocheck_item.pointIndex;
-                            Token tocheck_aftPointToken = tocheck_item.ruleProduction[tocheck_pointInd];
-                            if (tocheck_aftPointToken.CompareTo(afterPointToken) == 0) //si tiene el mismo símbolo después del punto, entonces va como kernel al mismo estado
+                            if (tocheck_pointInd < tocheck_item.ruleProduction.Count)
                             {
-                                Kernels.Add(tocheck_item);
+                                Token tocheck_aftPointToken = tocheck_item.ruleProduction[tocheck_pointInd];
+                                if (tocheck_aftPointToken.CompareTo(afterPointToken) == 0) //si tiene el mismo símbolo después del punto, entonces va como kernel al mismo estado
+                                {
+                                    StateItem otherkernel = new StateItem()
+                                    {
+                                        nameVariable = tocheck_item.nameVariable,
+                                        pointIndex = tocheck_item.pointIndex + 1,
+                                        ruleProduction = tocheck_item.ruleProduction,
+                                        Lookahead = new List<char>() { (char)0 }
+                                    };
+                                    Kernels.Add(otherkernel);
+                                }
                             }
+                            
                         }
                         int SucessorStateID = GenerateState(Kernels);
                         //AddSuccessors(_states.Last());

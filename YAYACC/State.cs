@@ -18,22 +18,37 @@ namespace YAYACC
         public int CompareTo(object _object)
         {
             State _stateItem = (State)_object;
-            int i = 0;
 
             if (_stateItem.items.Count != items.Count)
             {
                 return 1;
             }
+            bool found = true;
             foreach (var item in items)
             {
-                var item2 = _stateItem.items[i];
-                if (item.nameVariable == item2.nameVariable && item.pointIndex == item2.pointIndex && item.ruleProduction == item2.ruleProduction) 
+                if (found)
                 {
-                    return 0;
+                    found = false;
+                    foreach (var item2 in _stateItem.items)
+                    {
+                        if (item.nameVariable == item2.nameVariable && item.pointIndex == item2.pointIndex && item.ruleProduction == item2.ruleProduction)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
                 }
-                i++;
+                else
+                {
+                    return 1;
+                }
             }
-            return 1;
+            if (!found)
+            {
+                return 1;
+            }
+            return 0;
+            
         }
     }
 }

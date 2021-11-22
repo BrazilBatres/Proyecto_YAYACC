@@ -11,7 +11,7 @@ namespace YAYACC
             Parser parser = new Parser();
             //try
             //{
-                parser.Parse("Gramatica_2.y");
+                parser.Parse("Gramática_2.y");
                 Console.WriteLine("Expresión OK");
                 parser.grammar.Print();
 
