@@ -31,6 +31,7 @@ namespace YAYACC
         bool newAuxRules = false;
         bool isOtherRule = false;
         bool IsInitVar = true;
+        bool IsEpsilon = false;
 
         #region States
         public void State0(bool IsAction)
@@ -139,6 +140,11 @@ namespace YAYACC
         {
             if (IsAction)
             {
+                if ((_stack.Peek() == "Pipe" || _stack.Peek() == "Colon") && (_token.Tag == TokenType.Semicolon || _token.Tag == TokenType.Pipe))
+                {
+                    IsEpsilon = true;
+                }
+
                 switch (_token.Tag)
                 {
                     case TokenType.Semicolon:
@@ -296,6 +302,11 @@ namespace YAYACC
         {
             if (IsAction)
             {
+                if ((_stack.Peek() == "Pipe" || _stack.Peek() == "Colon") && (_token.Tag == TokenType.Semicolon || _token.Tag == TokenType.Pipe))
+                {
+                    IsEpsilon = true;
+                }
+
                 switch (_token.Tag)
                 {
                     case TokenType.Semicolon:
@@ -502,7 +513,39 @@ namespace YAYACC
                     {
                         AddTerminal(Auxrule.Peek().Value);
                     }                    
-                    break;                                    
+                    break;
+                case 8:
+                    if (IsEpsilon)
+                    {
+                        if (isOtherRule)
+                        {
+                            if (!newAuxRules)
+                            {
+                                Auxrules = new List<List<Token>>();
+                                newAuxRules = true;
+                            }
+                            AddRule(Auxrule);
+                            isOtherRule = false;
+                            newAuxRule = false;
+                        }
+                        if (!newAuxRule)
+                        {
+                            Auxrule = new Stack<Token>();
+                            newAuxRule = true;
+                        }
+                        Token _token = new Token
+                        {
+                            Tag = TokenType.Terminal,
+                            Value = ""
+                        };
+                        Auxrule.Push(_token);
+                        if (Auxrule.Peek().Tag == TokenType.Terminal)
+                        {
+                            AddTerminal(Auxrule.Peek().Value);
+                        }
+                    }
+                    IsEpsilon = false;
+                    break;
                 default:
                     break;
             }                     
@@ -578,17 +621,40 @@ namespace YAYACC
         public void AddTerminal(string terminal)
         {
             bool exist = false;
-            char[] _char = terminal.ToCharArray();
+            char _char;
+
+            switch (terminal)
+            {
+                case "\\\\":
+                    _char = (char)92;
+                    break;
+                case "\\n":
+                    _char = (char)10;
+                    break;
+                case "\\t":
+                    _char = (char)8;
+                    break;
+                case "\\'":
+                    _char = (char)39;
+                    break;
+                case "":
+                    _char = (char)0;
+                    break;
+                default:
+                        _char = Convert.ToChar(terminal);
+                    break;
+            }                     
+
             for (int i = 0; i < grammar.Terminals.Count; i++)
             {                
-                if (grammar.Terminals[i].Equals(_char[0]))
+                if (grammar.Terminals[i].Equals(_char))
                 {
                     exist = true;
                 }
             }
             if (!exist)
             {
-                grammar.Terminals.Add(_char[0]);
+                grammar.Terminals.Add(_char);
             }
         }
     }

@@ -18,7 +18,7 @@ namespace YAYACC
         public void Print()
         {
             Console.WriteLine("-------------------------------------------");            
-            foreach (var item1 in Variables)
+            foreach (var item1 in Variables)    
             {
                 Variable _actualVar = item1.Value;
                 Console.WriteLine("Variable " + _actualVar.Name + ":");
@@ -172,10 +172,9 @@ namespace YAYACC
             }
             else if (Production[Index].Tag == TokenType.Terminal) // Si a la derecha del puntito hay un terminal, entonces solo ese terminal será el Lookahead
             {
-                char[] terminal = Production[Index].Value.ToCharArray();
-                toReturn.Add(terminal[0]);
+                toReturn.Add(Convert.ToChar(Production[Index].Value));
             }
-            else if (Production[Index].Tag == TokenType.Variable)
+            else if (Production[Index].Tag == TokenType.Variable) // Si a la derecha del puntito hay una variable, entonces se debe calcular su FIRST
             {
                 FirstVariable(Production[Index].Value, toReturn);
             }
@@ -183,31 +182,71 @@ namespace YAYACC
         }
         public void FirstVariable(string variable, List<char> first)
         {
-            Variable var = Variables[variable];
-            for (int i = 0; i < var.Rules.Count; i++)
+            bool varExist = Variables.TryGetValue(variable, out Variable var);
+            if (varExist)
             {
-                bool okFirst = false;
-                int ruleIndex = 0;
-                List<char> temporalFirst = new List<char>();
-                while (!okFirst)
+                for (int i = 0; i < var.Rules.Count; i++)
                 {
-                    if (ruleIndex < var.Rules[i].Count)
+                    bool okFirst = false;
+                    int ruleIndex = 0;
+
+                    while (!okFirst)
                     {
                         if (var.Rules[i][ruleIndex].Tag == TokenType.Terminal)
                         {
                             char[] terminal = var.Rules[i][0].Value.ToCharArray();
-                            temporalFirst.Add(terminal[0]);
+                            if (terminal.Length == 0)
+                            {
+                                first.Add((char)0);
+                            }
+                            else
+                            {
+                                if (!first.Contains(terminal[0]))
+                                {
+                                    first.Add(terminal[0]);
+                                }
+                            }
                             okFirst = true;
                         }
                         else if (var.Rules[i][ruleIndex].Tag == TokenType.Variable)
                         {
-                            FirstVariable(var.Rules[i][ruleIndex].Value, first);
+                            if (var.Name == var.Rules[i][ruleIndex].Value)
+                            {
+                                okFirst = true;
+                            }
+                            else
+                            {
+                                FirstVariable(var.Rules[i][ruleIndex].Value, first);
+                            }
+                        }
+                        if (!okFirst)
+                        {
+                            if (first.Contains((char)0) && ((ruleIndex + 1) < var.Rules[i].Count))
+                            {
+                                first.Remove((char)0);
+                                ruleIndex++;
+                            }
+                            else
+                            {
+                                okFirst = true;
+                            }
+                            //else if(first.Contains((char)0) && ((ruleIndex + 1) == var.Rules[i].Count))
+                            //{
+                            //    okFirst = true;
+                            //}
+                            //else
+                            //{
+                            //    okFirst = true;
+                            //}
                         }
                     }
-                    ruleIndex++;
                 }
-
             }
+            else
+            {
+                string errorMessage = "The variable \"" + variable +  "\" does not exist";                
+                throw new Exception(errorMessage);
+            }            
         }
     }
 }
