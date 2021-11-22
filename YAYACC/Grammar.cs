@@ -406,5 +406,28 @@ namespace YAYACC
                 throw new Exception(errorMessage);
             }            
         }
+        public void parserGrammar(string word)
+        {
+            string completeWord = word + "$";
+            if (!Terminals.Contains((char)32))
+            {
+                completeWord.Replace(" ","");
+            }
+            Stack<int> _Statestack = new Stack<int>();
+            Stack<string> _stack = new Stack<string>();
+
+            bool accept = false;            
+            _Statestack.Push(0);
+            _stack.Push("#");
+
+            List<Action[]> Actions = parseTable.Actions;
+            Dictionary<int, int[]> GOTO = parseTable.GOTO;
+            while (!false)
+            {
+                int CurrentState = _Statestack.Peek();
+                string toRead = completeWord.Substring(0, 1);
+                Action[] stateActions = Actions[CurrentState];
+            }
+        }
     }
 }

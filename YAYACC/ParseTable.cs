@@ -6,8 +6,8 @@ namespace YAYACC
 {
     public class ParseTable
     {
-        List<Action[]> Actions = new List<Action[]>();
-        Dictionary<int, int[]> GOTO = new Dictionary<int, int[]>();
+        public List<Action[]> Actions = new List<Action[]>();
+        public Dictionary<int, int[]> GOTO = new Dictionary<int, int[]>();
         List<State> _states;
         List<char> _terminals;
         Dictionary<string, Variable> _variables;        
@@ -42,7 +42,7 @@ namespace YAYACC
                     foreach (var sucesor in currentState.Successors)
                     {
 
-                        if (sucesor.Key.Value == "Terminal")
+                        if (sucesor.Key.Tag == TokenType.Terminal)
                         {
                             InsertShift(sucesor, ref result);
                         }
