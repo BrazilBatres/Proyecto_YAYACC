@@ -92,7 +92,7 @@ namespace YAYACC
             };
             GenerateState(_StateItem);
         }
-        public void GenerateState(List<StateItem> kernelItems)
+        public int GenerateState(List<StateItem> kernelItems)
         {
             State new_state = new State()
             {
@@ -105,15 +105,46 @@ namespace YAYACC
             {
                 Closure(new_state.items[i], new_state.items);
             }
-            //Generar transiciones a nuevos estados
-            foreach (var item in new_state.items)
+            //Verificar que no exista un estado igual
+            for (int i = 0; i < _states.Count; i++)
             {
+                var item = _states[i];
+                if (item.CompareTo(new_state) == 0)
+                {
+                    return i;
+                }
+            }
+            //Generar transiciones a nuevos estados
+            for (int i = 0; i < new_state.items.Count; i++)
+            {
+                var item = new_state.items[i];
                 int pointInd = item.pointIndex;
                 Token afterPointToken = item.ruleProduction[pointInd];
                 if (!new_state.Successors.ContainsKey(afterPointToken))
                 {
-                    _statesQty++; //solo si no hay un estado con el mismo core
-                    new_state.Successors.Add(afterPointToken, _statesQty);
+                    //primer kernel
+                    List<StateItem> Kernels = new List<StateItem>();
+                    StateItem firstkernel = new StateItem()
+                    {
+                        nameVariable = item.nameVariable,
+                        pointIndex = item.pointIndex,
+                        ruleProduction = item.ruleProduction,
+                        Lookahead = new List<char>() { (char)0 }
+                    };
+                    Kernels.Add(firstkernel);
+                    //buscar otros kernels
+                    for (int j = i + 1; j < new_state.items.Count; j++)
+                    {
+                        var tocheck_item = new_state.items[j];
+                        int tocheck_pointInd = tocheck_item.pointIndex;
+                        Token tocheck_aftPointToken = tocheck_item.ruleProduction[tocheck_pointInd];
+                        if (tocheck_aftPointToken.CompareTo(afterPointToken) == 0) //si tiene el mismo símbolo después del punto, entonces va como kernel al mismo estado
+                        {
+                            Kernels.Add(tocheck_item);
+                        }
+                    }
+                    int SucessorStateID = GenerateState()
+                    new_state.Successors.Add(afterPointToken,);
                 }
             }
         }

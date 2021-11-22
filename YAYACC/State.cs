@@ -25,11 +25,11 @@ namespace YAYACC
                 var item2 = _stateItem.items[i];
                 if (item.nameVariable == item2.nameVariable && item.pointIndex == item2.pointIndex && item.ruleProduction == item2.ruleProduction) 
                 {
-                    return 1;
+                    return 0;
                 }
                 i++;
             }
-            return 0;
+            return 1;
         }
     }
 }
