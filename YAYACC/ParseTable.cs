@@ -19,14 +19,12 @@ namespace YAYACC
             _states = states;
             _terminals = Terminals;
             _variables = Variables;
-            int CurrentNumber = 1;
             foreach (var item in Variables)
             {
                 foreach (var production in item.Value.Rules)
                 {
                     _numberedRules.Add(production);
                     _correspondingVariable.Add(item.Value.Name);
-                    CurrentNumber++;
                 }
             }
 
@@ -45,7 +43,7 @@ namespace YAYACC
                     }
                     else
                     {
-                        InsertGOTO()
+                        InsertGOTO();
                     }
                   
                 }
@@ -56,14 +54,14 @@ namespace YAYACC
                     if (item.pointIndex == item.ruleProduction.Count)
                     {
                         int Key = _numberedRules.IndexOf(item.ruleProduction);
-                        InsertReduce()
+                        InsertReduce();
                     }
                 }
             }
         }
 
 
-        public void InsertReduce(KeyValuePair<Token, int> tag, ref Action[] result, int Key)
+        public void InsertReduce(KeyValuePair<Token, int> tag, ref Action[] result, int ruleNum)
         {
             char _char;
 
@@ -93,10 +91,8 @@ namespace YAYACC
 
             Action action = new Action();
             action.action = 'R';
-            action.num = Key;
+            action.num = ruleNum;
             result[_index] = action;
-
-
         }
 
         public void InsertShift(KeyValuePair<Token, int> tag, ref Action[] result)
