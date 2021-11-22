@@ -161,10 +161,53 @@ namespace YAYACC
                 }
             }
         }
-        public List<char> First (List<Token> Production, List<char> Lookahead, int pointIndex)
+        public List<char> First(List<Token> Production, List<char> Lookahead, int pointIndex)
         {
             List<char> toReturn = new List<char>();
+            int Index = pointIndex++;
+
+            if (Production.Count == Index) // Si el puntito queda hasta el final de la regla, solo se toma en cuenta el Lookahead
+            {
+                toReturn = Lookahead;
+            }
+            else if (Production[Index].Tag == TokenType.Terminal) // Si a la derecha del puntito hay un terminal, entonces solo ese terminal será el Lookahead
+            {
+                char[] terminal = Production[Index].Value.ToCharArray();
+                toReturn.Add(terminal[0]);
+            }
+            else if (Production[Index].Tag == TokenType.Variable)
+            {
+                FirstVariable(Production[Index].Value, toReturn);
+            }
             return toReturn;
+        }
+        public void FirstVariable(string variable, List<char> first)
+        {
+            Variable var = Variables[variable];
+            for (int i = 0; i < var.Rules.Count; i++)
+            {
+                bool okFirst = false;
+                int ruleIndex = 0;
+                List<char> temporalFirst = new List<char>();
+                while (!okFirst)
+                {
+                    if (ruleIndex < var.Rules[i].Count)
+                    {
+                        if (var.Rules[i][ruleIndex].Tag == TokenType.Terminal)
+                        {
+                            char[] terminal = var.Rules[i][0].Value.ToCharArray();
+                            temporalFirst.Add(terminal[0]);
+                            okFirst = true;
+                        }
+                        else if (var.Rules[i][ruleIndex].Tag == TokenType.Variable)
+                        {
+                            FirstVariable(var.Rules[i][ruleIndex].Value, first);
+                        }
+                    }
+                    ruleIndex++;
+                }
+
+            }
         }
     }
 }
