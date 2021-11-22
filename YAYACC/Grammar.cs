@@ -83,7 +83,7 @@ namespace YAYACC
                         { new Token { Tag = TokenType.Variable, Value = InitVar.Name }}
                     },
                     pointIndex = 0,
-                    Lookahead = new List<char>() { (char)0 }
+                    Lookahead = new List<char>() { (char)1 } //(char)1 -> #
                 }
             };
             GenerateState(_StateItem);
@@ -95,8 +95,86 @@ namespace YAYACC
                 }
             }
             //AddSuccessors(_states.Last());
+            GenerateKernelTable();
             parseTable = new ParseTable(_states, Terminals, Variables);
             parseTable.GenerateTable();
+        }
+        public int GetKernelSuccessor(State currentstate, StateItem item)
+        {
+            Token tosearchToken = item.ruleProduction[0];
+            int ToReturn = currentstate.Successors[tosearchToken];
+            return ToReturn;
+        }
+        public void GenerateKernelTable()
+        {
+            //Dictionary<int, Kernel> kernels = new Dictionary<int, Kernel>(); //en esta lista se guarda el índice el kernel dentro del estado al que pertenece
+            //int kernelQty = 0;
+            ////Obtener cantidad total de kernels
+            //for (int i = 0; i < _states.Count; i++)
+            //{
+            //    for (int j = 0; j < _states[i].items.Count; j++)
+            //    {
+            //        var item = _states[i].items[j];
+            //        if (item.pointIndex != 0) // si es kernel
+            //        {
+            //            Kernel kernel = new Kernel()
+            //            {
+            //                item = item,
+            //                ToState = GetKernelSuccessor(_states[i], item)
+            //            };
+            //            kernels.Add(j, kernel);
+            //            kernelQty++;
+            //        }
+            //    }
+            //}
+            ////inicializar tabla
+            //List<List<char>[]> KernelTable = new List<List<char>[]>()
+            //{
+            //    new List<char>[kernelQty]
+            //};
+            ////primera columna de la tabla
+            //List<char>[] auxColumn = new List<char>[kernelQty];
+            ////Colocar $ al lookahead del state 0
+            //auxColumn[0] = new List<char>
+            //{
+            //    (char)1
+            //};
+            ////llenar primera columna
+            //for (int i = 1; i < kernelQty; i++) //omite el estado 0
+            //{
+            //    if (kernels[i].item.Spontaneous == true)
+            //    {
+            //        auxColumn[i] = kernels[i].item.Lookahead;
+            //        if (kernels[i].item.Lookahead.Count > 1) //si tiene más de un lookahead, omitir el #
+            //        {
+            //            auxColumn[i].Remove((char)0);
+            //        }
+            //    }
+            //}
+            //KernelTable.Add(auxColumn);//Agregar primera columna
+            ////
+            //int toState;
+            //for (int j = 0; j < KernelTable.Count; j++)
+            //{
+            //    auxColumn = new List<char>[kernelQty];
+            //    for (int i = 0; i < kernelQty; i++)
+            //    {
+            //        if (KernelTable[j][i] != null)
+            //        {
+            //            int actualState = kernels[i].State;
+            //            foreach (var item in _states[actualState].items)
+            //            {
+            //                if (!item.Spontaneous)
+            //                {
+            //                    toState = GetKernelSuccessor(_states[actualState], item);
+            //                    auxColumn[toState]
+            //                }
+            //            }
+                        
+            //        }
+            //    }
+            //}
+            
         }
         public int GenerateState(List<StateItem> kernelItems)
         {
@@ -115,7 +193,7 @@ namespace YAYACC
             for (int i = 0; i < _states.Count; i++)
             {
                 var item = _states[i];
-                if (item.CompareTo(new_state) == 0)
+                if (item.CompareToState(new_state, false) == 0)
                 {
                     return i;
                 }
@@ -142,7 +220,8 @@ namespace YAYACC
                             nameVariable = item.nameVariable,
                             pointIndex = item.pointIndex + 1,
                             ruleProduction = item.ruleProduction,
-                            Lookahead = new List<char>() { (char)0 }
+                            //Lookahead = new List<char>() { (char)1 }
+                            Lookahead = item.Lookahead
                         };
                         Kernels.Add(firstkernel);
                         //buscar otros kernels
@@ -154,13 +233,14 @@ namespace YAYACC
                             {
                                 Token tocheck_aftPointToken = tocheck_item.ruleProduction[tocheck_pointInd];
                                 if (tocheck_aftPointToken.CompareTo(afterPointToken) == 0) //si tiene el mismo símbolo después del punto, entonces va como kernel al mismo estado
-                                {
+                                { 
                                     StateItem otherkernel = new StateItem()
                                     {
                                         nameVariable = tocheck_item.nameVariable,
                                         pointIndex = tocheck_item.pointIndex + 1,
                                         ruleProduction = tocheck_item.ruleProduction,
-                                        Lookahead = new List<char>() { (char)0 }
+                                        //Lookahead = new List<char>() { (char)1 }
+                                        Lookahead = tocheck_item.Lookahead
                                     };
                                     Kernels.Add(otherkernel);
                                 }
@@ -221,7 +301,7 @@ namespace YAYACC
         public List<char> First(List<Token> Production, List<char> Lookahead, int pointIndex)
         {
             List<char> toReturn = new List<char>();
-            int Index = pointIndex++;
+            int Index = pointIndex + 1;
 
             if (Production.Count == Index) // Si el puntito queda hasta el final de la regla, solo se toma en cuenta el Lookahead
             {
@@ -242,11 +322,11 @@ namespace YAYACC
             }
             else if (Production[Index].Tag == TokenType.Variable) // Si a la derecha del puntito hay una variable, entonces se debe calcular su FIRST
             {
-                FirstVariable(Production[Index].Value, toReturn);
+                FirstVariable(Production[Index].Value, toReturn, Lookahead);
             }
             return toReturn;
         }
-        public void FirstVariable(string variable, List<char> first)
+        public void FirstVariable(string variable, List<char> first, List<char> lookahead)
         {
             bool varExist = Variables.TryGetValue(variable, out Variable var);
             if (varExist)
@@ -291,7 +371,7 @@ namespace YAYACC
                             }
                             else
                             {
-                                FirstVariable(var.Rules[i][ruleIndex].Value, first);
+                                FirstVariable(var.Rules[i][ruleIndex].Value, first, lookahead);
                             }
                         }
                         if (!okFirst)
@@ -307,6 +387,17 @@ namespace YAYACC
                             }                            
                         }
                     }
+                }
+                if (first.Contains((char)0))
+                {
+                    first.Remove((char)0);
+                    for (int i = 0; i < lookahead.Count; i++)
+                    {
+                        first.Add(lookahead[i]);
+                    }
+                    HashSet<char> vs = new HashSet<char>(first);
+                    List<char> charList = vs.ToList();
+                    first = charList;
                 }
             }
             else
