@@ -86,6 +86,7 @@ namespace YAYACC
                 }
             };
             GenerateState(_StateItem);
+            AddSuccessors(_states.Last());
         }
         public int GenerateState(List<StateItem> kernelItems)
         {
@@ -109,28 +110,33 @@ namespace YAYACC
                     return i;
                 }
             }
+            _states.Add(new_state);
+            return _statesQty++;
+        }
+        public void AddSuccessors(State lastState)
+        {
             //Generar transiciones a nuevos estados
-            for (int i = 0; i < new_state.items.Count; i++)
+            for (int i = 0; i < lastState.items.Count; i++)
             {
-                var item = new_state.items[i];
+                var item = lastState.items[i];
                 int pointInd = item.pointIndex;
                 Token afterPointToken = item.ruleProduction[pointInd];
-                if (!new_state.Successors.ContainsKey(afterPointToken))
+                if (!lastState.Successors.ContainsKey(afterPointToken))
                 {
                     //primer kernel
                     List<StateItem> Kernels = new List<StateItem>();
                     StateItem firstkernel = new StateItem()
                     {
                         nameVariable = item.nameVariable,
-                        pointIndex = item.pointIndex,
+                        pointIndex = item.pointIndex + 1,
                         ruleProduction = item.ruleProduction,
                         Lookahead = new List<char>() { (char)0 }
                     };
                     Kernels.Add(firstkernel);
                     //buscar otros kernels
-                    for (int j = i + 1; j < new_state.items.Count; j++)
+                    for (int j = i + 1; j < lastState.items.Count; j++)
                     {
-                        var tocheck_item = new_state.items[j];
+                        var tocheck_item = lastState.items[j];
                         int tocheck_pointInd = tocheck_item.pointIndex;
                         Token tocheck_aftPointToken = tocheck_item.ruleProduction[tocheck_pointInd];
                         if (tocheck_aftPointToken.CompareTo(afterPointToken) == 0) //si tiene el mismo símbolo después del punto, entonces va como kernel al mismo estado
@@ -138,8 +144,9 @@ namespace YAYACC
                             Kernels.Add(tocheck_item);
                         }
                     }
-                    int SucessorStateID = GenerateState()
-                    new_state.Successors.Add(afterPointToken,);
+                    int SucessorStateID = GenerateState(Kernels);
+                    AddSuccessors(_states.Last());
+                    lastState.Successors.Add(afterPointToken, SucessorStateID);
                 }
             }
         }
