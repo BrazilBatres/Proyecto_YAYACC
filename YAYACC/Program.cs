@@ -11,14 +11,14 @@ namespace YAYACC
             Parser parser = new Parser();
             try
             {
-                parser.Parse(args[0]);
+                parser.Parse("Gramatica_1.y");
                 Console.WriteLine("Expresión OK");
                 parser.grammar.Print();
 
-                //List<char> toReturn = new List<char>();
-                //parser.grammar.FirstVariable("_Declaration", toReturn);
+                List<char> toReturn = new List<char>();
+                parser.grammar.FirstVariable("Var_list", toReturn);
 
-                parser.grammar.BuildParser();
+                //parser.grammar.BuildParser();
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
             }

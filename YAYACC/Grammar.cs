@@ -205,7 +205,16 @@ namespace YAYACC
             }
             else if (Production[Index].Tag == TokenType.Terminal) // Si a la derecha del puntito hay un terminal, entonces solo ese terminal será el Lookahead
             {
-                toReturn.Add(Convert.ToChar(Production[Index].Value));
+                var _char = Production[Index].Value switch
+                {
+                    "\\\\" => (char)92,
+                    "\\n" => (char)10,
+                    "\\t" => (char)8,
+                    "\\'" => (char)39,
+                    "" => (char)0,
+                    _ => Convert.ToChar(Production[Index].Value),
+                };
+                toReturn.Add(_char);
             }
             else if (Production[Index].Tag == TokenType.Variable) // Si a la derecha del puntito hay una variable, entonces se debe calcular su FIRST
             {
@@ -234,12 +243,21 @@ namespace YAYACC
                             }
                             else
                             {
-                                if (!first.Contains(terminal[0]))
+                                if (!first.Contains(Convert.ToChar(var.Rules[i][0].Value)))
                                 {
-                                    first.Add(terminal[0]);
+                                    var _char = var.Rules[i][0].Value switch
+                                    {
+                                        "\\\\" => (char)92,
+                                        "\\n" => (char)10,
+                                        "\\t" => (char)8,
+                                        "\\'" => (char)39,
+                                        "" => (char)0,
+                                        _ => Convert.ToChar(var.Rules[i][0].Value),
+                                    };
+                                    first.Add(_char);                                   
                                 }
+                                okFirst = true;
                             }
-                            okFirst = true;
                         }
                         else if (var.Rules[i][ruleIndex].Tag == TokenType.Variable)
                         {
@@ -262,15 +280,7 @@ namespace YAYACC
                             else
                             {
                                 okFirst = true;
-                            }
-                            //else if(first.Contains((char)0) && ((ruleIndex + 1) == var.Rules[i].Count))
-                            //{
-                            //    okFirst = true;
-                            //}
-                            //else
-                            //{
-                            //    okFirst = true;
-                            //}
+                            }                            
                         }
                     }
                 }
