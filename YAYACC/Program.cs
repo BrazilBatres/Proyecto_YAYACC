@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace YAYACC
 {
     class Program
@@ -9,9 +11,13 @@ namespace YAYACC
             Parser parser = new Parser();
             try
             {
-                parser.Parse("Gramatica_5.y");
+                parser.Parse("Gramatica_1.y");
                 Console.WriteLine("Expresión OK");
                 parser.grammar.Print();
+
+                List<char> toReturn = new List<char>();
+                parser.grammar.FirstVariable("_Declaration", toReturn);
+
                 parser.grammar.BuildParser();
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
