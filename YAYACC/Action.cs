@@ -4,7 +4,7 @@ using System.Text;
 
 namespace YAYACC
 {
-    struct Action
+    public struct Action
     {
         public char action;
         public int num;
