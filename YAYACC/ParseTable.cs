@@ -47,85 +47,53 @@ namespace YAYACC
                     }
                   
                 }
-                Actions.Add(result);
-
+                
                 foreach (var item in currentState.items)
                 {
                     if (item.pointIndex == item.ruleProduction.Count)
                     {
                         int Key = _numberedRules.IndexOf(item.ruleProduction);
-                        InsertReduce();
+                        InsertReduce(item.Lookahead,ref result,Key);
                     }
                 }
+
+                Actions.Add(result);
             }
         }
 
 
-        public void InsertReduce(KeyValuePair<Token, int> tag, ref Action[] result, int ruleNum)
+        public void InsertReduce(List<char> Lookahead, ref Action[] result, int ruleNum)
         {
-            char _char;
-
-            switch (tag.Key.Value)
+            foreach (var item in Lookahead)
             {
-                case "\\\\":
-                    _char = (char)92;
-                    break;
-                case "\\n":
-                    _char = (char)10;
-                    break;
-                case "\\t":
-                    _char = (char)8;
-                    break;
-                case "\\'":
-                    _char = (char)39;
-                    break;
-                case "":
-                    _char = (char)0;
-                    break;
-                default:
-                    _char = Convert.ToChar(tag.Key.Value);
-                    break;
+                Action action = new Action();
+                action.action = 'R';
+                action.num = ruleNum;
+                result[item] = action;
             }
-
-            int _index = _terminals.IndexOf(_char);
-
-            Action action = new Action();
-            action.action = 'R';
-            action.num = ruleNum;
-            result[_index] = action;
         }
 
         public void InsertShift(KeyValuePair<Token, int> tag, ref Action[] result)
         {
-            char _char;
-
-            switch (tag.Key.Value)
+            var _char = tag.Key.Value switch
             {
-                case "\\\\":
-                    _char = (char)92;
-                    break;
-                case "\\n":
-                    _char = (char)10;
-                    break;
-                case "\\t":
-                    _char = (char)8;
-                    break;
-                case "\\'":
-                    _char = (char)39;
-                    break;
-                case "":
-                    _char = (char)0;
-                    break;
-                default:
-                    _char = Convert.ToChar(tag.Key.Value);
-                    break;
-            }
-
+                "\\\\" => (char)92,
+                "\\n" => (char)10,
+                "\\t" => (char)8,
+                "\\'" => (char)39,
+                "" => (char)0,
+                _ => Convert.ToChar(tag.Key.Value),
+            };
             Action action = new Action();
             int _index = _terminals.IndexOf(_char);
             action.action = 'S';
             action.num = tag.Value;
             result[_index] = action;
+        }
+
+        public void InsertGOTO()
+        {
+            int[] Goto = new int[_variables.Count];
         }
     }
 }
