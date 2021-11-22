@@ -315,7 +315,7 @@ namespace YAYACC
                 throw new Exception(errorMessage);
             }            
         }
-        public void parserGrammar(string word)
+        public void ParserGrammar(string word)
         {
             string completeWord = word + "$";
             if (!Terminals.Contains((char)32))
@@ -331,11 +331,60 @@ namespace YAYACC
 
             List<Action[]> Actions = parseTable.Actions;
             Dictionary<int, int[]> GOTO = parseTable.GOTO;
-            while (!false)
+            while (!accept)
             {
                 int CurrentState = _Statestack.Peek();
                 string toRead = completeWord.Substring(0, 1);
                 Action[] stateActions = Actions[CurrentState];
+                int index = Terminals.IndexOf(Convert.ToChar(toRead));
+
+                if (index != -1)
+                {
+                    Action _actualAction;
+                    try
+                    {
+                        _actualAction = stateActions[index];
+                    }
+                    catch (Exception)
+                    {
+                        throw new Exception("Terminal \"" + toRead + "\" could not Shift or Reduce");
+                    }                    
+                    if (_actualAction.action == 'S')
+                    {                        
+                        _Statestack.Push(_actualAction.num);
+                        _stack.Push(toRead);
+                        completeWord.Remove(0,1);
+                    }
+                    else if (_actualAction.action == 'R')
+                    {
+                        if (_actualAction.num == -1)
+                        {
+                            accept = true;
+                        }
+                        else
+                        {
+                            List<Token> _production = parseTable._numberedRules[_actualAction.num];
+                            for (int i = 0; i < _production.Count; i++)
+                            {
+                                _stack.Pop();
+                                _Statestack.Pop();
+                            }
+                            _stack.Push(parseTable._correspondingVariable[index]);
+                            //GOTO
+                            int Aux = _Statestack.Peek();
+                            bool okGoto = GOTO.TryGetValue(Aux, out int[] _goto);
+                            if (!okGoto)
+                            {
+                                throw new Exception("State \"" + Aux + "\" doesn't have a GOTO with the Variable \"" + parseTable._correspondingVariable[index] + "\"");
+                            }
+                            _Statestack.Push(_goto[index]);
+                        }                        
+                    }
+                }
+                else
+                {                    
+                    throw new Exception("Terminal \"" + toRead + "\" doesn't exist in the Grammar");
+                }
             }
         }
     }

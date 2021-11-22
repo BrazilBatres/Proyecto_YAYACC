@@ -12,9 +12,9 @@ namespace YAYACC
         List<char> _terminals;
         Dictionary<string, Variable> _variables;        
 
-        List<List<Token>> _numberedRules = new List<List<Token>>();
+        public List<List<Token>> _numberedRules = new List<List<Token>>();
         
-        List<string> _correspondingVariable = new List<string>();
+        public List<string> _correspondingVariable = new List<string>();
         public ParseTable(List<State> states, List<char> Terminals, Dictionary<string,Variable> Variables)
         {
             _states = states;
