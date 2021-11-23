@@ -37,7 +37,7 @@ namespace YAYACC
             {
                 _matcher = _Terminal.Match(currentLine);
                 result.Tag = TokenType.Terminal;
-                result.Value = _matcher.Value.Replace("'", string.Empty);
+                result.Value = _matcher.Value.Substring(1, _matcher.Value.Length - 2);
                 currentLine = currentLine.Remove(0, _matcher.Length);
             }
             else if (_Variable.IsMatch(currentLine))

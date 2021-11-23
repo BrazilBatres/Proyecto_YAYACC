@@ -25,7 +25,7 @@ namespace YAYACC
                 Console.WriteLine("Variable " + _actualVar.Name + ":");
                 for (int i = 0; i < _actualVar.Rules.Count; i++)
                 {
-                    Console.Write("Regla " + (i + 1) + ": ");
+                    Console.Write("Production " + (i + 1) + ": ");
                     for (int j = 0; j < _actualVar.Rules[i].Count; j++)
                     {
                         Console.Write(_actualVar.Rules[i][j].Value + " ");
@@ -161,83 +161,6 @@ namespace YAYACC
             //Eliminar state2
             ToRemoveStates.Add(stateID2);
         }
-        public void GetKernelSuccessor(State currentstate, StateItem item)
-        {
-            //Token tosearchToken = item.ruleProduction[0];
-            //int ToReturn = currentstate.Successors[tosearchToken];
-            //return ToReturn;
-        }
-        public void GenerateKernelTable()
-        {
-            //Dictionary<int, Kernel> kernels = new Dictionary<int, Kernel>(); //en esta lista se guarda el índice el kernel dentro del estado al que pertenece
-            //int kernelQty = 0;
-            ////Obtener cantidad total de kernels
-            //for (int i = 0; i < _states.Count; i++)
-            //{
-            //    for (int j = 0; j < _states[i].items.Count; j++)
-            //    {
-            //        var item = _states[i].items[j];
-            //        if (item.pointIndex != 0) // si es kernel
-            //        {
-            //            Kernel kernel = new Kernel()
-            //            {
-            //                item = item,
-            //                ToState = GetKernelSuccessor(_states[i], item)
-            //            };
-            //            kernels.Add(j, kernel);
-            //            kernelQty++;
-            //        }
-            //    }
-            //}
-            ////inicializar tabla
-            //List<List<char>[]> KernelTable = new List<List<char>[]>()
-            //{
-            //    new List<char>[kernelQty]
-            //};
-            ////primera columna de la tabla
-            //List<char>[] auxColumn = new List<char>[kernelQty];
-            ////Colocar $ al lookahead del state 0
-            //auxColumn[0] = new List<char>
-            //{
-            //    (char)1
-            //};
-            ////llenar primera columna
-            //for (int i = 1; i < kernelQty; i++) //omite el estado 0
-            //{
-            //    if (kernels[i].item.Spontaneous == true)
-            //    {
-            //        auxColumn[i] = kernels[i].item.Lookahead;
-            //        if (kernels[i].item.Lookahead.Count > 1) //si tiene más de un lookahead, omitir el #
-            //        {
-            //            auxColumn[i].Remove((char)0);
-            //        }
-            //    }
-            //}
-            //KernelTable.Add(auxColumn);//Agregar primera columna
-            ////
-            //int toState;
-            //for (int j = 0; j < KernelTable.Count; j++)
-            //{
-            //    auxColumn = new List<char>[kernelQty];
-            //    for (int i = 0; i < kernelQty; i++)
-            //    {
-            //        if (KernelTable[j][i] != null)
-            //        {
-            //            int actualState = kernels[i].State;
-            //            foreach (var item in _states[actualState].items)
-            //            {
-            //                if (!item.Spontaneous)
-            //                {
-            //                    toState = GetKernelSuccessor(_states[actualState], item);
-            //                    auxColumn[toState]
-            //                }
-            //            }
-                        
-            //        }
-            //    }
-            //}
-            
-        }
         public int GenerateState(List<StateItem> kernelItems)
         {
             State new_state = new State()
@@ -327,7 +250,11 @@ namespace YAYACC
                 Token actualSymbol = kernelProd[pointInd]; //Obtener símbolo que está después del punto
                 if (actualSymbol.Tag == TokenType.Variable) //si el punto está antes de una variable
                 {
-                    Variables.TryGetValue(actualSymbol.Value, out Variable currentVar);
+                    bool istOK = Variables.TryGetValue(actualSymbol.Value, out Variable currentVar);
+                    if (!istOK)
+                    {
+                        throw new Exception("The variable \"" + actualSymbol.Value + "\" does not exist");
+                    }
                     foreach (var item in currentVar.Rules)//Por cada regla de currentVar
                     {
                         StateItem newItem = new StateItem()

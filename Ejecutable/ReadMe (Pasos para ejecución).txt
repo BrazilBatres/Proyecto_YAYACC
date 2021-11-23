@@ -7,8 +7,4 @@ Pasos para la ejecución:
 	- Lex Error: En caso existiera un error léxico.
 	- Syntax Error: En caso existiera un error sintáctico.
 	- Expresión OK: En caso la gramática ingresada desde el archivo.y es correcta (se imprimirá la gramática, mostrando sus variables y sus respectivas reglas).
---------------------------------------------------------------------------------------------------------------------------------------
-NOTA: En el paso No. 4, en caso la gramática ingresada esté OK... Puede que a veces no imprima bien la gramática en la consola
-porque esta etapa aún está en desarrollo. Por favor solamente considerar la parte de la validación de la gramática, no la conversión
-a objeto gramática como tal.
---------------------------------------------------------------------------------------------------------------------------------------
+5. Si la expresión está OK, entonces podrá ingresar palabras para validarlas.
