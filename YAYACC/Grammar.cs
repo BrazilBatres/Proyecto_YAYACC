@@ -471,10 +471,10 @@ namespace YAYACC
         }
         public void ParserGrammar(string word)
         {
-            string completeWord = word + "$";
+            string completeWord = word + (char)1;
             if (!Terminals.Contains((char)32))
             {
-                completeWord.Replace(" ","");
+                completeWord = completeWord.Replace(" ","");
             }
             Stack<int> _Statestack = new Stack<int>();
             Stack<string> _stack = new Stack<string>();
@@ -484,9 +484,10 @@ namespace YAYACC
             _stack.Push("#");
 
             List<Action[]> Actions = parseTable.Actions;
-            Dictionary<int, int[]> GOTO = parseTable.GOTO;
+            Dictionary<int, int[]> GOTO = parseTable.GOTO;            
             while (!accept)
             {
+                bool useEpsilon = false;
                 int CurrentState = _Statestack.Peek();
                 string toRead = completeWord.Substring(0, 1);
                 Action[] stateActions = Actions[CurrentState];
@@ -498,16 +499,29 @@ namespace YAYACC
                     try
                     {
                         _actualAction = stateActions[index];
+                        if (_actualAction.action == (char)0)
+                        {
+                            int indexAux = Terminals.IndexOf((char)0);
+                            _actualAction = stateActions[indexAux];
+                            if (_actualAction.action == (char)0)
+                            {
+                                throw new Exception("SYNTAX ERROR: Terminal \"" + toRead + "\" could not Shift or Reduce");
+                            }
+                            useEpsilon = true;
+                        }
                     }
                     catch (Exception)
                     {
-                        throw new Exception("Terminal \"" + toRead + "\" could not Shift or Reduce");
+                        throw new Exception("SYNTAX ERROR: Terminal \"" + toRead + "\" could not Shift or Reduce");
                     }                    
                     if (_actualAction.action == 'S')
-                    {                        
+                    {
                         _Statestack.Push(_actualAction.num);
-                        _stack.Push(toRead);
-                        completeWord.Remove(0,1);
+                        if (!useEpsilon)
+                        {
+                            _stack.Push(toRead);
+                            completeWord = completeWord.Remove(0, 1);
+                        }                                                
                     }
                     else if (_actualAction.action == 'R')
                     {
@@ -518,26 +532,55 @@ namespace YAYACC
                         else
                         {
                             List<Token> _production = parseTable._numberedRules[_actualAction.num];
-                            for (int i = 0; i < _production.Count; i++)
+                            bool toDo = true;
+                            if (_production.Count == 1)
                             {
-                                _stack.Pop();
-                                _Statestack.Pop();
+                                if (_production[0].Value == "")
+                                {
+                                    toDo = false;
+                                }
                             }
-                            _stack.Push(parseTable._correspondingVariable[index]);
+                            if (toDo)
+                            {
+                                for (int i = 0; i < _production.Count; i++)
+                                {
+                                    _stack.Pop();
+                                    _Statestack.Pop();
+                                }
+                            }
+                            else
+                            {
+                                for (int i = 0; i < _production.Count; i++)
+                                {
+                                    _Statestack.Pop();
+                                }
+                            }                            
+
+                            _stack.Push(parseTable._correspondingVariable[_actualAction.num]);
                             //GOTO
                             int Aux = _Statestack.Peek();
                             bool okGoto = GOTO.TryGetValue(Aux, out int[] _goto);
                             if (!okGoto)
                             {
-                                throw new Exception("State \"" + Aux + "\" doesn't have a GOTO with the Variable \"" + parseTable._correspondingVariable[index] + "\"");
+                                throw new Exception("SYNTAX ERROR: State \"" + Aux + "\" doesn't have a GOTO with the Variable \"" + parseTable._correspondingVariable[index] + "\"");
                             }
-                            _Statestack.Push(_goto[index]);
+
+                            int _index = 0;
+                            foreach (var item in parseTable._variables)
+                            {
+                                if (item.Key == _stack.Peek())
+                                {
+                                    break;
+                                }
+                                _index++;
+                            }
+                            _Statestack.Push(_goto[_index]);
                         }                        
                     }
                 }
                 else
                 {                    
-                    throw new Exception("Terminal \"" + toRead + "\" doesn't exist in the Grammar");
+                    throw new Exception("LEXERROR: Terminal \"" + toRead + "\" doesn't exist in the Grammar");
                 }
             }
         }

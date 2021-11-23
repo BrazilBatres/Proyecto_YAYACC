@@ -632,7 +632,7 @@ namespace YAYACC
                     _char = (char)10;
                     break;
                 case "\\t":
-                    _char = (char)8;
+                    _char = (char)9;
                     break;
                 case "\\'":
                     _char = (char)39;
