@@ -6,14 +6,16 @@ namespace YAYACC
     public class Grammar
     {
         public Dictionary<string,Variable> Variables { get; set; }
+        //Dictionary<int, State> LALRstates;
         public Variable InitVar { get; set; }
         public List<char> Terminals { get; set; } //Llenar esta lista
         public ParseTable parseTable { get; set; }
         //.y Parser
-        List<State> _states;
+        Dictionary<int, State> _states;
+        List<int> ToRemoveStates;
         int VarQty;
         int TermQty;
-        int _statesQty;
+        int _statesQty = -1;
         public void Print()
         {
             Console.WriteLine("-------------------------------------------");            
@@ -70,7 +72,7 @@ namespace YAYACC
         {
             VarQty = Variables.Count;
             TermQty = Terminals.Count;
-            _states = new List<State>();
+            _states = new Dictionary<int, State>();
 
             //Crear estado 0
             List<StateItem> _StateItem = new List<StateItem>
@@ -95,15 +97,75 @@ namespace YAYACC
                 }
             }
             //AddSuccessors(_states.Last());
-            GenerateKernelTable();
-            parseTable = new ParseTable(_states, Terminals, Variables);
+            FromCLRtoLALR();
+            List<State> statesToSend = _states.Values.ToList();
+            parseTable = new ParseTable(statesToSend, Terminals, Variables);
             parseTable.GenerateTable();
         }
-        public int GetKernelSuccessor(State currentstate, StateItem item)
+        public void FromCLRtoLALR()
         {
-            Token tosearchToken = item.ruleProduction[0];
-            int ToReturn = currentstate.Successors[tosearchToken];
-            return ToReturn;
+            ToRemoveStates = new List<int>();
+            for (int i = 0; i < _states.Count; i++)
+            {
+                for (int j = i + 1; j < _states.Count; j++)
+                {
+                    if (!ToRemoveStates.Contains(i) && !ToRemoveStates.Contains(j))
+                    {
+                        if (_states[i].CompareToState(_states[j], true) == 0)//si encuentra estado con mismo CORE
+                        {
+
+                            UnifyStates(i, j);
+                            break;
+                        }
+                    }
+                }
+            }
+            foreach (var item in ToRemoveStates)
+            {
+                _states.Remove(item);
+            }
+        }
+        public void UnifyStates(int stateID1, int stateID2)
+        {
+            //Unificar lookaheads 
+            for (int i = 0; i < _states[stateID1].items.Count; i++)
+            {
+                for (int j = 0; j < _states[stateID2].items.Count; j++)
+                {
+                    if (_states[stateID1].items[i].CompareTo(_states[stateID2].items[j]) == 0)//cuando encuentre su item gemelo
+                    {
+                        foreach (var lkhd in _states[stateID2].items[j].Lookahead)
+                        {
+                            if (!_states[stateID1].items[i].Lookahead.Contains(lkhd))//si el lookahead no está ya entre sus lookahead
+                            {
+                                _states[stateID1].items[i].Lookahead.Add(lkhd);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            //Redirigir sucesores que llegan a state2 para que lleguen a state1
+            foreach (var actualstate in _states)
+            {
+                List<int> auxval = actualstate.Value.Successors.Values.ToList();
+                List<Token> auxkey = actualstate.Value.Successors.Keys.ToList();
+                for (int i = 0; i < auxval.Count; i++)
+                {
+                    if (auxval[i] == stateID2)
+                    {
+                        actualstate.Value.Successors[auxkey[i]] = stateID1;
+                    }
+                }
+            }
+            //Eliminar state2
+            ToRemoveStates.Add(stateID2);
+        }
+        public void GetKernelSuccessor(State currentstate, StateItem item)
+        {
+            //Token tosearchToken = item.ruleProduction[0];
+            //int ToReturn = currentstate.Successors[tosearchToken];
+            //return ToReturn;
         }
         public void GenerateKernelTable()
         {
@@ -198,8 +260,9 @@ namespace YAYACC
                     return i;
                 }
             }
-            _states.Add(new_state);
-            return _statesQty++;
+            _statesQty++;
+            _states.Add(_statesQty,new_state);
+            return _statesQty;
         }
         public void AddSuccessors(State lastState)
         {
