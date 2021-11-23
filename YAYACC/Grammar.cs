@@ -335,8 +335,9 @@ namespace YAYACC
                             ruleProduction = item,
                             nameVariable = actualSymbol.Value,
                             pointIndex = 0,
-                            Lookahead = Lookahead
+                            Lookahead = new List<char>()
                         };
+                        newItem.Lookahead.AddRange(Lookahead);
                         //verificar que no exista este item
                         bool alreadyExists = false;
                         foreach (var stateItem in items)
