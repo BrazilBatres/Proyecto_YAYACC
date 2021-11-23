@@ -10,7 +10,7 @@ namespace YAYACC
         public Dictionary<int, int[]> GOTO = new Dictionary<int, int[]>();
         List<State> _states;
         List<char> _terminals;
-        Dictionary<string, Variable> _variables;        
+        public Dictionary<string, Variable> _variables;        
 
         public List<List<Token>> _numberedRules = new List<List<Token>>();
         
@@ -19,6 +19,7 @@ namespace YAYACC
         {
             _states = states;
             _terminals = Terminals;
+            _terminals.Add((char)1);
             _variables = Variables;
             foreach (var item in Variables)
             {
@@ -75,13 +76,16 @@ namespace YAYACC
         }
 
         public void InsertReduce(List<char> Lookahead, ref Action[] result, int ruleNum)
-        {
+        {                        
             foreach (var item in Lookahead)
             {
-                Action action = new Action();
-                action.action = 'R';
-                action.num = ruleNum;
-                result[item] = action;
+                int index = _terminals.IndexOf(item);
+                Action action = new Action
+                {
+                    action = 'R',
+                    num = ruleNum
+                };
+                result[index] = action;
             }
         }
 
@@ -91,7 +95,7 @@ namespace YAYACC
             {
                 "\\\\" => (char)92,
                 "\\n" => (char)10,
-                "\\t" => (char)8,
+                "\\t" => (char)9,
                 "\\'" => (char)39,
                 "" => (char)0,
                 _ => Convert.ToChar(tag.Key.Value),
